@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>短信平台</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+    <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc" />
+    <meta name="Baiduspider" content="noarchive"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <link rel="shortcut icon" th:href="${oem.tab_logo_url}" />
+    <link rel='stylesheet' href='css/tipso.min.css' th:href="@{/css/tipso.min.css}"/>
+    <link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css}"/>
+    <link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css?v=1.0}"/>
+    <link rel='stylesheet' href='js/jedate/skin/jedate.css'  th:href="@{/js/jedate/skin/jedate.css?v=1.0}"/>
+    <link rel='stylesheet' th:href="@{/css/ie10.css}" />
+    <link rel="stylesheet" href="/font/iconfont.css" th:href="@{/font/iconfont.css?v=1.0}">
+    <link rel='stylesheet' href='/css/main.css' th:href="@{/css/main.css?v=1.0}"/>
+    <!--[if !IE]> -->
+    <script src="js/jquery-3.0.0.min.js"  th:src="@{/js/jquery-3.0.0.min.js}"></script>
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script th:src="@{/js/jquery-1.11.3.min.js}" ></script>
+    <link rel='stylesheet' th:href="@{/css/ie9.css}" />
+    <![endif]-->
+    <style>
+        .tip{
+            color:#FFF;
+            background-color: #2FB26A;
+            line-height: 40px;
+            padding-left:20px;
+        }
+        .order-option a{
+            margin-left:10px;
+        }
+        .order-option select{
+            margin-right:14px;
+        }
+        .order-option input{
+            margin-right:14px;
+        }
+        table{
+            table-layout:auto !important;
+        }
+        .pagination{
+            width:100%;
+        }
+        h1 {
+            height: 50px;
+            line-height: 50px;
+        }
+        .active {
+            height: 50px;
+            line-height: 50px;
+            border-bottom: 4px solid #2ea967;
+        }
+    </style>
+</head>
+
+<body  th:style="'color:' + ${oem.navigation_text_color} + ';'" >
+<!--[if IE]>
+<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span></div>
+<![endif]-->
+
+<div id="wrap" class="clearfix" ms-controller="my-app">
+    <!-- 左侧导航栏 bf-->
+    <div id="sidebar" th:replace="console :: #sidebar">
+        <div class="h100">
+            <div class="logo">
+                <a href="javascript:;"><img src="${ctx}/img/logo2.png" /></a>
+            </div>
+            <div class="nav">
+                <ul>
+
+                    <li th:each="topMenu : ${topMenus}">
+                        <a href="javascript:void(0)" th:href="${topMenu.url}?${topMenu.url}:'javascript:void(0)'" th:class="${topMenu.className}">
+                            <span th:text="${topMenu.name}">业务管理</span><i th:if="${topMenu.url}==null"></i>
+                        </a>
+
+                        <ul class="sub-nav" th:if="${not #lists.isEmpty(topMenu.subMenus)}"  th:style="${topMenu.style}">
+                            <li th:each="subMenu : ${topMenu.subMenus}">
+                                <a href="sms/page" th:href="${subMenu.url}" th:text="${subMenu.name}"  th:class="${subMenu.className}">短信发送<span></span></a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li><a href="${ctx}/order/getProductListByClientId" >首页</a></li>
+                    <li>
+                        <a href="javascript:void(0)">业务管理<i></i></a>
+                        <ul class="sub-nav" style="display:block;">
+                            <li><a href="${ctx}/sms/page"  class="cur">短信发送<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/interShortMessage" >国际短信报价<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/bussinessData">数据统计<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/query-sms-record">发送记录<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/expireSMS">短信到期<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">账户管理<i></i></a>
+                        <ul class="sub-nav">
+                            <li><a href="${ctx}/account/accountInformation">账户资料<span></span></a></li>
+                            <li><a href="${ctx}/account/securityInfo">账户安全<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a  href="${ctx}/helpCenter/smsAccessIntroduce">帮助中心</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="contact-info">
+                联系代理商<br/>
+                138777777777<br/>
+                服务热线<br/>
+                400-777-9968<br/>
+            </div>
+        </div>
+    </div>
+    <!-- 左侧导航栏 ef -->
+    <!-- 右边内容 bf -->
+    <div id="main">
+        <div class="main-con">
+            <div class="top clearfix">
+                <h1 class="active" ><a id="marketSms" >智能模板</a></h1>
+                <h1><a th:href="@{/autoTemplate/commonlist}">通用模板</a></h1>
+                <div class="top-r ft-r"  th:include="console :: user"></div>
+            </div>
+            <div class="con-out" th:if="${session.IS_OEM}">
+                <div class="content" style="margin-top:0;">
+                    <p class="tip">注意：短信模板事先报备通过的话，可以极大减少进入审核和拦截的问题，大大提高发送效率！</p>
+                    <div class="clearfix form-box">
+                        <div class="clearfix order-option " style="margin-top:10px;">
+
+                            <label >审核状态</label>
+                            <select  class="sendState" ms-duplex="@params.state">
+                                <option  ms-for="el in @stateOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+                            </select>
+                            <label>模板属性</label>
+                            <select class="sendState" ms-duplex="@params.smsType">
+                                <option  ms-for="el in @smsTypeOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+                            </select>
+                            <label>模板类型</label>
+                            <select class="sendState" ms-duplex="@params.templateType">
+                                <option  ms-for="el in @templateTypeOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+                            </select>
+                            <label>模板ID</label>
+                            <input type="text" style="width: 110px"  ms-duplex="@params.templateId" />
+                            <label>签名</label>
+                            <input type="text" style="width: 110px"  ms-duplex="@params.sign"/>
+                        </div>
+                        <div class="clearfix order-option " style="margin-top:10px;">
+                            <label>模板内容</label>
+                            <input type="text" style="width: 250px" ms-duplex="@params.content"/>
+                            <label>创建时间</label>
+                            <input type="text" id="date_start" name="start_time" placeholder="开始时间" readonly="readonly" ms-duplex="@params.createStartTime" />
+                            <label>至</label>
+                            <input type="text" id="date_end" name="end_time" placeholder="结束时间" readonly="readonly" ms-duplex="@params.createEndTime"/>
+                            <a href="javascript:;" class="btn-blue" ms-click="@search">搜索</a>
+                            <a href="javascript:;" class="btn-orange" ms-click="@reset">重置</a>
+                            <a href="javascript:;" class="btn-green" ms-click="@add">添加模板</a>
+                            <a href="javascript:;" class="btn-green" ms-click="@import">批量导入</a>
+                        </div>
+                        <input id="fileName" type="hidden" name="fileName" />
+                    </div>
+                    <div>
+                        <table class="grid-table grid-table-tx-c grid-table-border">
+                            <thead>
+                                <tr>
+                                    <th class="" style="width:40px;">序号</th>
+                                    <th class="">模板ID</th>
+                                    <th class="">模板属性</th>
+                                    <th class="">模板类型</th>
+                                    <th class="" style="width:300px;">模板内容</th>
+                                    <th class="">短信签名</th>
+                                    <th class="" style="width:80px;">创建者</th>
+                                    <th class="">创建时间</th>
+                                    <th class="">审核状态</th>
+                                    <th class="">原因</th>
+                                    <th class="">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ms-for="el in @list">
+                                    <td>{{el.orderNo}}</td>
+                                    <td>{{el.templateId}}</td>
+                                    <td>
+                                        <span ms-if="el.smsType == 10">行业</span>
+                                        <span ms-if="el.smsType == 11">会员营销</span>
+                                    </td>
+                                    <td>
+                                        <span ms-if="el.templateType == 0">固定模板</span>
+                                        <span ms-if="el.templateType == 1">变量模板</span>
+                                    </td>
+                                    <td>{{el.content}}</td>
+                                    <td>{{el.sign}}</td>
+                                    <td>{{el.userName}}</td>
+                                    <td>{{el.createTimeStr}}</td>
+                                    <td>
+                                        <span ms-if="el.state == 0">待审核</span>
+                                        <span ms-if="el.state == 1">审核通过</span>
+                                        <span ms-if="el.state == 3">审核不通过</span>
+                                    </td>
+                                    <td>{{el.remark}}</td>
+                                    <td>
+                                        <div ms-if="el.isCreateor == 1">
+                                            <div class="green" style="cursor:pointer;" ms-click="@edit(el.templateId)">编辑</div>
+                                            <div class="green" style="cursor:pointer;" ms-click="@del(el.templateId)">删除</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- 分页 -->
+                        <div class="pagination clearfix">
+                            <div class="ft-r">
+                                <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                                <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                            </div>
+                            <div class="pagination-btn ft-r">
+                                <a href="javascript:;" class="first page-btn"  ms-click='@firstPage'></a>
+                                <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                                <a href="javascript:;" class="now">{{@pageNow}}/{{@total}}</a>
+                                <a href="javascript:;" class="after page-btn"  ms-click='@nextPage'></a>
+                                <a href="javascript:;" class="last page-btn"  ms-click='@lastPage'></a>
+                            </div>
+                            <div class="show-count ft-r">共有<span class="allCount">{{@totalCount}}</span>条</div>
+                        </div>
+                        <!-- 分页 end  -->
+                    </div>
+                </div>
+                <img id="preview" alt="" src="" style="display: none"/>
+                <div class="btm btm-copyright "  th:include="console :: footer">
+                    <p>© 2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 右边内容 ef -->
+</div>
+
+
+</body>
+<script src="js/common.js" th:src="@{/js/common.js?v=1.0}"></script>
+<script src="js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+<script  src="/js/jedate/jedate.js" th:src="@{/js/jedate/jedate.js}"></script>
+<script src="js/validate/smsp.validate.js" th:src="@{/js/validate/smsp.validate.js}"></script>
+<script  src="js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/sendSms.js?v=1.1}" ></script>
+<script type="text/javascript" th:src="@{/js/avalon.js}"></script>
+<script th:inline="javascript" >
+    /*<![CDATA[*/
+    jeDate({
+        dateCell: '#date_start',
+        festival:true,
+//        minDate:$("#minDate").val(),        //最小日期
+        format: 'YYYY-MM-DD'
+    });
+
+    jeDate({
+        dateCell: '#date_end',
+        festival:true,
+//        minDate:$("#minDate").val(),        //最小日期
+        format: 'YYYY-MM-DD'
+    });
+$(function(){
+    var listUrl = "/autoTemplate/list";
+
+    var vm = avalon.define({
+        $id : "my-app",
+        list : [],
+        pageNow : 0,
+        total : 0,
+        totalCount : 0,
+        jumpto : '',
+        params:{
+            state :"",
+            smsType :"",
+            templateType:"",
+            templateId:"",
+            sign:"",
+            content:"",
+            createStartTime:"",
+            createEndTime:"",
+            rows:10,
+            page:1
+        },
+        stateOptions : [{
+            value:"",
+            text:"所有状态"
+        },{
+            value:"0",
+            text:"待审核"
+        },{
+            value:"1",
+            text:"审核通过"
+        },{
+            value:"3",
+            text:"审核不通过"
+        }],
+        smsTypeOptions:[{
+            value:"",
+            text:"全部属性"
+        },{
+           value:"10",
+            text:"行业"
+        },{
+            value:"11",
+            text:"会员营销"
+        }],
+        templateTypeOptions:[{
+           value:"",
+            text:"全部类型"
+        },{
+            value:"0",
+            text:"固定模板"
+        },{
+            value:"1",
+            text:"变量模板"
+        }],
+        search :function(){
+            var beginCreateTime = $("#date_start").val();
+            var endCreateTime = $("#date_end").val();
+            var start = new Date(beginCreateTime).getTime();
+            var end = new Date(endCreateTime).getTime();
+            if(start > end){
+                layer.msg("开始时间不能大于结束时间",{icon:2});
+                return false;
+            }
+            this.params.page=1;
+            getList({url : listUrl, type : 'POST', data :this.params},this);
+
+        },
+        add : function(){
+            layer.open({
+                type: 2,
+                title: '新增模板',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['600px', '90%'],
+                content: '/autoTemplate/add'
+            });
+        },
+        reset : function(){
+            var form = $(".form-box");
+            form.find("select").val("");
+            form.find("input").val("");
+            for (var k in this.params){
+                this.params[k] = '';
+                this.params.rows = 10;
+                this.params.page = 1;
+            }
+        },
+        edit : function(id){
+            layer.open({
+                type: 2,
+                title: '编辑模板',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['600px', '90%'],
+                content: '/autoTemplate/autoTemplateModify?templateId=' + id
+            });
+        },
+        del : function(id){
+            layer.confirm('确认删除模板'+ id +'？', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                $.ajax({
+                    url : '/autoTemplate/del',
+                    type : 'POST',
+                    data : {templateId:id},
+                    dataType :'json',
+                    success : function(res){
+                        if(res.code != 0){
+                            layer.msg(res.msg,{icon:2});
+                            return;
+                        }
+                        getList({url : listUrl, type : 'POST', data : JSON.parse(JSON.stringify(vm.params.$model))}, vm);
+                        layer.msg(res.msg, {icon: 1,time: 1000},function(){
+                            layer.closeAll();
+
+                        });
+
+                    }
+                })
+            });
+        },
+        import:function(){
+            layer.open({
+                type: 2,
+                title: '批量导入',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['600px', '600px'],
+                content: '/autoTemplate/import'
+            });
+        },
+        //跳转
+        jumpPage : function(){
+            var tagPage = parseInt(this.jumpto, 10);      //目标页面
+            if(tagPage < 0 || tagPage > parseInt(this.total, 10)){
+                layer.alert('无效的页数', {
+                    icon: 2
+                });
+                return false;
+            }
+            this.params.page = tagPage;
+            getList({url : listUrl, type : 'POST', data :this.params},this);
+        },
+        //下一页
+        nextPage : function(){
+            var pageNow = this.pageNow;
+            if(this.total == 0){
+                layer.alert('当前查询无数据', {
+                    icon: 2
+                });
+                return false;
+            }
+            pageNext = parseInt(pageNow, 10) + 1;
+            if(this.total == pageNow){
+                layer.alert('已经是最后一页', {
+                    icon: 2
+                });
+                return false;
+            }
+            this.params.page = pageNext;
+            getList({url : listUrl, type : 'POST', data : this.params},this);
+        },
+        //最后一页
+        lastPage : function(){
+            var last = this.total;
+            if(this.pageNow == last){
+                layer.alert('已经是最后一页', {
+                    icon: 2
+                });
+                return false;
+            }
+            this.params.page = last;
+            getList({url : listUrl, type : 'POST', data : this.params},this);
+        },
+        //前一页
+        prePage : function(){
+            var pageNow = this.pageNow,
+                pagpPre = parseInt(pageNow, 10) - 1;
+            if(pagpPre == 0){
+                layer.alert('已经是第一页', {
+                    icon: 2
+                });
+                return false;
+            }
+
+            this.params.page = pagpPre;
+            getList({url : listUrl, type : 'POST', data : this.params},this);
+        },
+        //第一页
+        firstPage : function(){
+            var first = 1;
+            if(this.pageNow == 1){
+                layer.alert('已经是第一页', {
+                    icon: 2
+                });
+                return false;
+            }
+
+            this.params.page = first;
+            getList({url : listUrl, type : 'POST', data : this.params},this);
+        },
+        isDark : function(strType){
+            if(strType == 9){
+                return "btn-disable"
+            } else {
+                return '';
+            }
+        },
+    })
+    avalon.scan(document.body);
+    //首次加载
+    getList({url : listUrl, type : 'POST', data : JSON.parse(JSON.stringify(vm.params.$model))}, vm);
+
+    window.reloadList = function(){
+        getList({url : listUrl, type : 'POST', data : JSON.parse(JSON.stringify(vm.params.$model))}, vm);
+    }
+});
+
+function getList(option, vm){
+    $.ajax({
+        url : option.url,
+        type : option.type,
+        data : option.data,
+        dataType :'json',
+        success : function(res){
+            vm.list      = res.entityList;
+            vm.pageNow       = res.currentPage;
+            vm.total         = res.totalPage;
+            vm.totalCount    = res.totalCount;
+            vm.pageRowCount  = res.pageRowCount;
+        }
+    })
+}
+
+    /*]]>*/
+</script>
+</html>

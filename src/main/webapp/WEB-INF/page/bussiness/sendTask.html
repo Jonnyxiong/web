@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>短信平台</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+    <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc" />
+    <meta name="Baiduspider" content="noarchive"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <link rel='stylesheet' href='css/tipso.min.css' th:href="@{/css/tipso.min.css}"/>
+    <link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css}"/>
+    <link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css?v=1.0}"/>
+    <link rel='stylesheet' href='js/jedate/skin/jedate.css'  th:href="@{/js/jedate/skin/jedate.css?v=1.0}"/>
+    <link rel='stylesheet' th:href="@{/css/ie10.css}" />
+    <link rel="stylesheet" href="/font/iconfont.css" th:href="@{/font/iconfont.css?v=1.0}">
+    <link rel='stylesheet' href='/css/main.css' th:href="@{/css/main.css?v=1.0}"/>
+    <!--[if !IE]> -->
+    <script src="js/jquery-3.0.0.min.js"  th:src="@{/js/jquery-3.0.0.min.js}"></script>
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script th:src="@{/js/jquery-1.11.3.min.js}" ></script>
+    <link rel='stylesheet' th:href="@{/css/ie9.css}" />
+    <![endif]-->
+    <style>
+        .tip{
+            color:#FFF;
+            background-color: #2FB26A;
+            line-height: 40px;
+            padding-left:20px;
+        }
+        .order-option a{
+            margin-left:10px;
+        }
+        .order-option select{
+            min-width: 200px;
+        }
+        .order-option input{
+            margin-right:14px;
+            min-width: 185px;
+        }
+        table{
+            table-layout:auto !important;
+        }
+        .pagination{
+            width:100%;
+        }
+        .active{
+            border-bottom: 3px solid green !important;
+        }
+        h1 {
+            height:96%;
+        }
+        .btnCls{
+            position: absolute;
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            right: 120px;
+        }
+        .close_btn{
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+        }
+        #copyContent {
+            text-indent: 20px;
+        }
+        .content-limit {
+            cursor:pointer;
+            width: 290px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .processcontainer{
+            width:150px;
+            border:1px solid #6C9C2C;
+            height:18px;
+            margin-left: 80px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        #processbar{
+            background:#57b582;
+            color: yellow;
+            float:left;
+            height:100%;
+            text-align:center;
+            border-radius: 15px;
+            line-height:150%;
+        }
+    </style>
+</head>
+<body  th:style="'color:' + ${oem.navigation_text_color} + ';'" >
+<!--[if IE]>
+<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span></div>
+<![endif]-->
+<div id="wrap" class="clearfix" ms-controller="my-app">
+    <!-- 左侧导航栏 bf-->
+    <div id="sidebar" th:replace="console :: #sidebar">
+        <div class="h100">
+            <div class="logo">
+                <a href="javascript:;"><img src="${ctx}/img/logo2.png" /></a>
+            </div>
+            <div class="nav">
+                <ul>
+                    <li th:each="topMenu : ${topMenus}">
+                        <a href="javascript:void(0)" th:href="${topMenu.url}?${topMenu.url}:'javascript:void(0)'" th:class="${topMenu.className}">
+                            <span th:text="${topMenu.name}">业务管理</span><i th:if="${topMenu.url}==null"></i>
+                        </a>
+                        <ul class="sub-nav" th:if="${not #lists.isEmpty(topMenu.subMenus)}"  th:style="${topMenu.style}">
+                            <li th:each="subMenu : ${topMenu.subMenus}">
+                                <a href="sms/page" th:href="${subMenu.url}" th:text="${subMenu.name}"  th:class="${subMenu.className}">短信发送<span></span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="${ctx}/order/getProductListByClientId" >首页</a></li>
+                    <li>
+                        <a href="javascript:void(0)">业务管理<i></i></a>
+                        <ul class="sub-nav" style="display:block;">
+                            <li><a href="${ctx}/sms/page"  class="cur">短信发送<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/interShortMessage" >国际短信报价<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/bussinessData">数据统计<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/query-sms-record">发送记录<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/expireSMS">短信到期<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">账户管理<i></i></a>
+                        <ul class="sub-nav">
+                            <li><a href="${ctx}/account/accountInformation">账户资料<span></span></a></li>
+                            <li><a href="${ctx}/account/securityInfo">账户安全<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a  href="${ctx}/helpCenter/smsAccessIntroduce">帮助中心</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="contact-info">
+                联系代理商<br/>
+                138777777777<br/>
+                服务热线<br/>
+                400-777-9968<br/>
+            </div>
+        </div>
+    </div>
+    <!-- 左侧导航栏 ef -->
+    <!-- 右边内容 bf -->
+    <div id="main">
+        <div class="main-con">
+            <div class="top clearfix">
+                <h1><a href="${ctx}/bussiness/send" th:href="@{/bussiness/send}">短信发送</a></h1>
+                <h1 class="active"><a>发送任务</a></h1>
+                <h1><a href="${ctx}/bussiness/sendSMSTim" th:href="@{/bussiness/smsTimerSend}">定时发送</a></h1>
+                <h1><a href="${ctx}/bussiness/smsTimerSend" th:href="@{/bussiness/smsTimerTask}">定时任务</a></h1>
+                <div class="top-r ft-r"  th:include="console :: user"></div>
+            </div>
+            <div class="con-out" th:if="${session.IS_OEM}">
+                <div class="content" style="margin-top:0;">
+                    <p class="tip">当批量号码数量较大时，发送进度将可能缓慢，请耐心等待！</p>
+                    <div class="clearfix form-box">
+                        <div class="clearfix order-option " style="margin-top:10px;">
+                            <label>任务ID&nbsp;&nbsp;&nbsp;</label>
+                            <input type="text"  ms-duplex="@params.id"/>
+                            <label>创建者&nbsp;&nbsp;&nbsp;</label>
+                            <input type="text"  ms-duplex="@params.creater"/>
+                            <label>创建时间&nbsp;&nbsp;&nbsp;</label>
+                            <input type="text" id="date_start" name="start_time" placeholder="开始时间" readonly="readonly" ms-duplex="@params.createTimeStart" />
+                            <label>至</label>
+                            <input type="text" id="date_end" name="end_time" placeholder="结束时间" readonly="readonly" ms-duplex="@params.createTimeEnd"/>
+                        </div>
+                        <div class="clearfix order-option " style="margin-top:10px;">
+                            <label>短信类型</label>
+                            <select class="sendState" ms-duplex="@params.smstype">
+                                <option  ms-for="el in @smsTypeOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+                            </select>
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;短信签名</label>
+                            <input type="text" style="width: 110px"  ms-duplex="@params.sign"/>
+                            <label>短信内容</label>
+                            <input type="text" style="width: 190px;margin-left: 25px;"  ms-duplex="@params.content"/>
+                            <a href="javascript:;" class="btn-green" style="width: 40px;height: 40px;" ms-click="@search">搜索</a>
+                        </div>
+                        <input id="fileName" type="hidden" name="fileName" />
+                    </div>
+                    <div>
+                        <table class="grid-table grid-table-tx-c grid-table-border">
+                            <thead>
+                            <tr>
+                                <th class="" style="width:40px;">序号</th>
+                                <th class="">任务ID</th>
+                                <th class="">总计费数</th>
+                                <th class="">创建时间</th>
+                                <th class="">短信类型</th>
+                                <th class="">短信签名</th>
+                                <th class="" style="width:280px;">短信内容</th>
+                                <th class="" style="width:280px;">任务状态</th>
+                                <th class="">创建者</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ms-for="el in @list">
+                                <td>{{el.rowNum}}</td>
+                                <td>{{el.id}}</td>
+                                <td>{{el.chargeNumTotal}}</td>
+                                <td>{{el.createTimeStr}}</td>
+                                <td>
+                                    <span ms-if="el.smstype == 0">通知短信</span>
+                                    <span ms-if="el.smstype == 4">验证码短信</span>
+                                    <span ms-if="el.smstype == 5">营销短信</span>
+                                </td>
+                                <td>{{el.sign}}</td>
+                                <td><div style="cursor:pointer;"  ms-click="@copymsg(el.content)">{{el.content}}</div></td>
+                                <td style="position: relative">
+                                    <div class="processcontainer" style="position: absolute;left:-45px;top: 15px;">
+                                        <div id="processbar" :css="{width: el.taskSchedule +'%'}"></div>
+                                    </div>
+                                    <span style="position: absolute;right: 20px;top: 15px;">{{el.taskSchedule + "%"}}</span>
+                                </td>
+                                <td>{{el.creator}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- 分页 -->
+                        <div class="pagination clearfix">
+                            <div class="ft-r">
+                                <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                                <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                            </div>
+                            <div class="pagination-btn ft-r">
+                                <a href="javascript:;" class="first page-btn"  ms-click='@firstPage'></a>
+                                <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                                <a href="javascript:;" class="now">{{@pageNow}}/{{@total}}</a>
+                                <a href="javascript:;" class="after page-btn"  ms-click='@nextPage'></a>
+                                <a href="javascript:;" class="last page-btn"  ms-click='@lastPage'></a>
+                            </div>
+                            <div class="show-count ft-r">共有<span class="allCount">{{@totalCount}}</span>条</div>
+                        </div>
+                        <!-- 分页 end  -->
+                    </div>
+                </div>
+                <img id="preview" alt="" src="" style="display: none"/>
+                <div class="btm btm-copyright "  th:include="console :: footer">
+                    <p>© 2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 右边内容 ef -->
+</div>
+</body>
+<script src="js/common.js" th:src="@{/js/common.js?v=1.0}"></script>
+<script src="js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+<script  src="/js/jeDate.js" th:src="@{/js/jeDate.js}"></script>
+<script src="js/validate/smsp.validate.js" th:src="@{/js/validate/smsp.validate.js}"></script>
+<script  src="js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/sendSms.js?v=1.1}" ></script>
+<script type="text/javascript" th:src="@{/js/avalon.js}"></script>
+<script src="js/clipboard.min.js" th:src="@{/js/clipboard.min.js}"></script>
+<script th:inline="javascript" >
+    /*<![CDATA[*/
+
+    $(function(){
+
+        //初始化时间
+        $.jeDate("#date_start",{
+//            minDate: $.nowDate(-90),
+            maxDate:$.nowDate(0),        //最小日期
+            formater:'YYYY-MM-DD hh:mm'
+        });
+        $.jeDate("#date_end",{
+//            minDate: ,
+            maxDate:$.nowDate(0),        //最小日期
+            formater:'YYYY-MM-DD hh:mm'
+        });
+        var listUrl = "/bussiness/sendTask";
+        var vm = avalon.define({
+            $id : "my-app",
+            list : [],
+            pageNow : 0,
+            total : 0,
+            totalCount : 0,
+            jumpto : '',
+            params:{
+                id :"",
+                creater:"",
+                createTimeStart :$.nowDate(-90),
+                createTimeEnd:$.nowDate(0),
+                smstype :"",
+                sign:"",
+                content:"",
+                rows:15,
+                page:1
+            },
+            stateOptions : [{
+                value:"",
+                text:"所有状态"
+            },{
+                value:"0",
+                text:"处理中"
+            },{
+                value:"1",
+                text:"等待中"
+            },{
+                value:"2",
+                text:"进行中"
+            },{
+                value:"3",
+                text:"已完成"
+            },{
+                value:"4",
+                text:"已取消"
+            }],
+            timeTypeOptions:[{
+                value:"0",
+                text:"创建时间"
+            },{
+                value:"1",
+                text:"发送时间"
+            }],
+            smsTypeOptions:[{
+                value:"",
+                text:"全部"
+            },{
+                value:"4",
+                text:"验证码"
+            },{
+                value:"0",
+                text:"通知"
+            },{
+                value:"5",
+                text:"营销"
+            }],
+            search :function(){
+                var beginCreateTime = $("#date_start").val();
+                var endCreateTime = $("#date_end").val();
+                var start = new Date(beginCreateTime).getTime();
+                var end = new Date(endCreateTime).getTime();
+                if(start > end){
+                    layer.msg("开始时间不能大于结束时间",{icon:2});
+                    return false;
+                }
+                this.params.page =1;
+                getList({url : listUrl, type : 'POST', data :this.params},this);
+            },
+            copymsg :function (a) {
+                var texts = a;
+                content = texts ;
+                index = layer.open({
+                    type: 1,
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['650px', '200px'], //宽高
+                    content: '<div class="winCls" id="copyContent">'+texts+'</div><a class="btn btn-green btnCls" data-clipboard-action="copy" data-clipboard-target="#copyContent">复制</a><a href="javascript:;" onclick="closeCopy()" class="btn btn-white close_btn">关闭</a>'
+                });
+            },
+            import:function(){
+                layer.open({
+                    type: 2,
+                    title: '批量导入',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['600px', '600px'],
+                    content: '/autoTemplate/import'
+                });
+            },
+            //跳转
+            jumpPage : function(){
+                var tagPage = parseInt(this.jumpto, 10);      //目标页面
+                if(tagPage < 0 || tagPage > parseInt(this.total, 10)){
+                    layer.alert('无效的页数', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                this.params.page = tagPage;
+                getList({url : listUrl, type : 'POST', data :this.params},this);
+            },
+            //下一页
+            nextPage : function(){
+                var pageNow = this.pageNow;
+                if(this.total == 0){
+                    layer.alert('当前查询无数据', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                pageNext = parseInt(pageNow, 10) + 1;
+                if(this.total == pageNow){
+                    layer.alert('已经是最后一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                this.params.page = pageNext;
+                getList({url : listUrl, type : 'POST', data : this.params},this);
+            },
+            //最后一页
+            lastPage : function(){
+                var last = this.total;
+                if(this.pageNow == last){
+                    layer.alert('已经是最后一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                this.params.page = last;
+                getList({url : listUrl, type : 'POST', data : this.params},this);
+            },
+            //前一页
+            prePage : function(){
+                var pageNow = this.pageNow,
+                    pagpPre = parseInt(pageNow, 10) - 1;
+                if(pagpPre == 0){
+                    layer.alert('已经是第一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                this.params.page = pagpPre;
+                getList({url : listUrl, type : 'POST', data : this.params},this);
+            },
+            //第一页
+            firstPage : function(){
+                var first = 1;
+                if(this.pageNow == 1){
+                    layer.alert('已经是第一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                this.params.page = first;
+                getList({url : listUrl, type : 'POST', data : this.params},this);
+            },
+            isDark : function(strType){
+                if(strType == 9){
+                    return "btn-disable"
+                } else {
+                    return '';
+                }
+            },
+        })
+        avalon.scan(document.body);
+        //首次加载
+        getList({url : listUrl, type : 'POST', data : JSON.parse(JSON.stringify(vm.params.$model))}, vm);
+        window.reloadList = function(){
+            getList({url : listUrl, type : 'POST', data : JSON.parse(JSON.stringify(vm.params.$model))}, vm);
+        }
+    });
+    function getList(option, vm){
+        $.ajax({
+            url : option.url,
+            type : option.type,
+            data : option.data,
+            dataType :'json',
+            success : function(res){
+                vm.list      = res.entityList;
+                vm.pageNow       = res.currentPage;
+                vm.total         = res.totalPage;
+                vm.totalCount    = res.totalCount;
+                vm.pageRowCount  = res.pageRowCount;
+            }
+        })
+    }
+    var clipboard = new Clipboard('.btnCls', {
+        target: function() {
+            return document.querySelector('#copyContent');
+        }
+    });
+    clipboard.on('success', function(e) {
+        layer.close(index);
+        layer.msg("复制成功");
+    });
+    clipboard.on('error', function(e) {
+        layer.msg("复制失败，浏览器版本低，请手动复制或者重新点击");
+    });
+
+    function closeCopy() {
+        parent.layer.closeAll();
+    }
+
+
+    //搜索手机号码
+    function searchMobile() {
+        var val = $("#phone").val();
+        var  searchResult= [];
+        var mobileArr = $("#origin_mobile").val().split(",");
+        if(val == null || val ==''){
+            $("#mobile").val(mobileArr);
+        }else{
+            for(var i =0;i<mobileArr.length;i++){
+                if (mobileArr[i].indexOf(val)>=0) {
+                    searchResult.push(mobileArr[i]);
+                }
+            }
+            $("#mobile").val(searchResult);
+        }
+    }
+    /*]]>*/
+</script>
+</html>

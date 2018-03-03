@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="smsClientPool" >
+
+
+	<select id="getRemainNumber" resultType="map">
+		SELECT
+			 p.product_type,
+			 sum(p.remain_number) remain_number,
+			IFNULL(TRUNCATE(sum(p.remain_amount), 4), 0.0000) remain_amount
+		FROM
+			t_sms_oem_client_pool p
+		WHERE
+			p.client_id = #{client_id}
+		and p.status = 0
+		and p.due_time > now()
+		GROUP BY
+			p.product_type
+		order by p.product_type
+
+	</select>  
+	
+	<select id="getDueNumber" resultType="map">
+		SELECT
+			 p.product_type,
+			 sum(p.remain_number) due_number,
+			 ROUND(sum(p.remain_amount),2) due_amount
+		FROM
+			t_sms_oem_client_pool p
+		WHERE
+			p.client_id = #{client_id}
+		and p.due_time &lt;= #{due_date}
+		AND p.due_time > now()
+		and p.status = 0
+		GROUP BY
+			p.product_type
+		order by p.product_type
+
+	</select>
+	
+	
+	<select id="queryExpirePage" resultType="map">
+		SELECT
+			 CASE p.product_type
+		        WHEN 0 THEN '行业'
+		        WHEN 1 THEN '营销'
+		        WHEN 2 THEN '国际'
+		        WHEN 3 THEN '验证码'
+		        WHEN 4 THEN '通知'
+		        WHEN 7 THEN 'USSD'
+		        WHEN 8 THEN '闪信'
+		        WHEN 9 THEN '挂机短信'
+		        ELSE '-'
+		    END AS product_type_name,
+		    CASE p.operator_code
+		    WHEN 0 THEN '全网'
+		        WHEN 1 THEN '移动'
+		        WHEN 2 THEN '联通'
+		        WHEN 3 THEN '电信'
+		        WHEN 4 THEN '国际'
+		        ELSE '-'
+		    END AS operator_code_name,
+		     CASE area_code
+		    WHEN 0 THEN '全国'
+		        WHEN 1 THEN '国际'
+		        ELSE '-'
+		    END AS area_code_name,
+            /*
+		    IF(p.remain_number IS NULL,0, p.remain_number) as remain_number,
+		    IF(p.remain_amount IS NULL,0, p.remain_amount) as remain_amount,*/
+		    
+		    CASE p.product_type
+		        WHEN 2 THEN CONCAT(ROUND(IF(p.remain_amount IS NULL,0, p.remain_amount),2),'元')
+		        ELSE CONCAT(IF(p.remain_number IS NULL,0, p.remain_number),'条')  end as remain,
+		    
+			p.due_time,p.unit_price,
+  			DATE_FORMAT(p.due_time,'%Y-%m-%d %H:%i:%S') as due_time_str
+  			
+		FROM
+			t_sms_oem_client_pool p
+		WHERE
+			p.client_id = #{client_id}
+		and p.status = 0
+		and p.due_time > now()
+		<if test="productType != null and productType != ''" >
+			and product_type = #{productType}
+		</if>
+		order by p.due_time
+		
+		LIMIT #{startIndex},#{pageSize}
+	</select>  
+	
+	<select id="queryExpireCount"  resultType="java.lang.Integer">
+		SELECT
+			count(client_pool_id) totalRows
+		FROM
+			t_sms_oem_client_pool p
+		WHERE
+			p.client_id = #{client_id}
+		and p.status = 0
+		and p.due_time > now()
+		<if test="productType != null and productType != '' and productType == 2" >
+			and product_type = #{productType} and p.remain_amount > 0
+		</if>
+		<if test="productType != null and productType != '' and productType != 2" >
+			and product_type = #{productType} and p.remain_number > 0
+		</if>
+	</select>    
+  
+</mapper>

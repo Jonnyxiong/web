@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 产品管理-产品列表 -->
+<mapper namespace="smsOemProduct">
+	<!-- 4.3.1 oem需求	start -->
+	<!-- 查询oem产品包 -->
+	<sql id="oemCommon">
+		<where>
+			<if test="multi_text != null and multi_text != ''">
+				(opi.product_id LIKE '%${multi_text}%'
+				OR opi.product_code LIKE '%${multi_text}%'
+				OR opi.product_name LIKE '%${multi_text}%'
+				)
+			</if>
+			<if test="status != null and status != ''">
+				AND opi.`status` = #{status}
+			</if>
+			<if test="start_time_day != null">
+				AND opi.due_time >= STR_TO_DATE(#{start_time_day},'%Y-%m-%d %T')
+			</if>
+			<if test="end_time_day != null">
+<!-- 				AND opi.due_time <![CDATA[<= STR_TO_DATE(CONCAT(#{end_time_day},' 23:59:59'),'%Y-%m-%d %T') ]]> -->
+				AND opi.due_time <![CDATA[<= STR_TO_DATE(#{end_time_day},'%Y-%m-%d %T') ]]>
+			</if>
+		</where>
+	</sql>
+	<select id="query" resultType="map">
+		SELECT
+			opi.product_id,
+			opi.product_name,
+			opi.product_code,
+			opi.product_type,
+			CASE opi.product_type
+				WHEN 0 THEN '行业'
+				WHEN 1 THEN '营销'
+				WHEN 2 THEN '国际'
+				WHEN 3 THEN '验证码'
+				WHEN 4 THEN '通知'
+				WHEN 7 THEN 'USSD'
+				WHEN 8 THEN '闪信'
+				WHEN 9 THEN '挂机短信'
+				END AS product_type_name,
+			opi.unit_price,
+			opi.`status`,
+			CASE opi.`status`
+				WHEN 0 THEN '待上架'
+				WHEN 1 THEN '已上架'
+				WHEN 2 THEN '已下架'
+				END AS status_name,
+			opi.creator,
+			DATE_FORMAT(opi.create_time,'%Y-%m-%d %T') AS create_time,
+			DATE_FORMAT(opi.due_time,'%Y-%m-%d %T') AS due_time
+		FROM
+			t_sms_oem_product_info opi
+		<include refid="oemCommon"/>
+		ORDER BY opi.due_time
+		${limit}
+	</select>
+	<!-- 查询oem产品包	总记录数 -->
+	<select id="queryCount" resultType="map">
+		SELECT
+			COUNT(0) AS totalCount
+		FROM
+			t_sms_oem_product_info opi
+		<include refid="oemCommon"/>
+	</select>
+	
+	<select id="queryProductTypeList" resultType="map">
+		SELECT
+		opi.product_code,
+		opi.product_name,
+		CASE  opi.operator_code
+			WHEN 0 THEN '全网'
+	 		WHEN 1 THEN '移动'
+	  		WHEN 2 THEN '联通'
+	  		WHEN 3 THEN '电信'
+	  		WHEN 4 THEN '国际'
+	  		ELSE '-'
+	  	END as operator_code,
+	  	CASE opi.area_code
+	 		WHEN 0 THEN '全国'
+	  		WHEN 1 THEN '国际'
+	  		ELSE '-'
+	  	  END as area_code,
+	    CASE opi.product_type
+	        WHEN 0 THEN '行业'
+	        WHEN 1 THEN '营销'
+	        WHEN 2 THEN '国际'
+	        WHEN 3 THEN '验证码'
+	        WHEN 4 THEN '通知'
+	        WHEN 7 THEN 'USSD'
+	        WHEN 8 THEN '闪信'
+	        WHEN 9 THEN '挂机短信'
+	        ELSE '-'
+		    END AS name
+		FROM
+		    t_sms_oem_product_info opi
+		WHERE opi.is_show = 1 and opi.due_time >=NOW() and opi.status = 1
+		GROUP BY opi.product_type,opi.area_code,opi.product_name,opi.product_code,opi.operator_code
+		order by opi.product_type
+	</select>
+	
+	<!-- 4.3.1 oem需求	end -->
+</mapper> 

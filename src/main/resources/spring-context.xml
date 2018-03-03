@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <!-- 根据不同的运行环境加载配置文件 -->
+    <context:property-placeholder location="classpath:system.properties"/>
+
+    <!-- 使用Annotation自动注册Bean，解决事物失效问题：在主容器中不扫描@Controller注解，在SpringMvc中只扫描@Controller注解。  -->
+    <context:component-scan base-package="com.ucpaas.sms"><!-- base-package 如果多个，用“,”分隔 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <context:component-scan base-package="com.jsmsframework"/>
+    <bean id="jsmsAppRunningSubject" class="com.jsmsframework.monitor.service.JsmsAppRunningSubjectImpl">
+        <property name="dataSourceList">
+            <list>
+                <ref bean="dataBase_10" />
+                <ref bean="dataBase_21" />
+                <ref bean="dataBase_31" />
+            </list>
+        </property>
+    </bean>
+    <bean id="dataBase_10" class="com.jsmsframework.monitor.pojo.JsmsDataSource" >
+        <constructor-arg type="javax.sql.DataSource" ref="message_dataSource_1"/>
+        <constructor-arg name="desc" value="业务库"/>
+    </bean>
+    <bean id="dataBase_21" class="com.jsmsframework.monitor.pojo.JsmsDataSource" >
+        <constructor-arg type="javax.sql.DataSource" ref="access_dataSource"/>
+        <constructor-arg name="desc" value="Access流水库-从库"/>
+    </bean>
+    <bean id="dataBase_31" class="com.jsmsframework.monitor.pojo.JsmsDataSource" >
+        <constructor-arg type="javax.sql.DataSource" ref="record_dataSource"/>
+        <constructor-arg name="desc" value="Record流水库-从库"/>
+    </bean>
+    <!-- 数据源配置, 使用 BoneCP 数据库连接池 -->
+    <bean id="dataSourceParent" class="com.alibaba.druid.pool.DruidDataSource" abstract="true"
+          destroy-method="close">
+        <!-- 数据源驱动类可不写，Druid默认会自动根据URL识别DriverClass -->
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <property name="maxActive" value="${jdbc.maxIdle}"/>
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${jdbc.maxWaitMillis}"/>
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="30000"/>
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="1800000"/>
+
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+
+        <!-- 连接泄漏回收参数，180秒，泄露的连接可以被删除的超时值 -->
+        <property name="removeAbandonedTimeout" value="180"/>
+    </bean>
+
+    <!-- 邮件配置 -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.exmail.qq.com" />
+        <property name="port" value="465" />
+        <property name="username" value="admin@ucpaas.com" />
+        <property name="password" value="Ucpaas.com@2014" />
+        <property name="javaMailProperties">
+            <props>
+                <!-- 				<prop key="mail.transport.protocol">smtp</prop> -->
+                <prop key="mail.smtp.auth">true</prop>
+                <!-- 				<prop key="mail.smtp.starttls.enable">true</prop> -->
+                <prop key="mail.smtp.timeout">25000</prop>
+                <!-- 				<prop key="mail.debug">true</prop> -->
+                <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- ucpaas_message 连接配置  -->
+    <bean id="master_dataSource" parent="dataSourceParent">
+        <property name="url" value="${master.jdbc.url}"/>
+        <property name="username" value="${master.jdbc.username}"/>
+        <property name="password" value="${master.jdbc.password}"/>
+    </bean>
+
+    <!-- ucpaas_message 配置mybitasSqlSessionFactoryBean -->
+    <bean id="master_sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="master_dataSource"/>
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*Mapper.xml"/>
+    </bean>
+
+    <!-- ucpaas_message 配置SqlSessionTemplate -->
+    <bean id="master_sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="master_sqlSessionFactory"/>
+    </bean>
+
+    <!-- ucpaas_message 事务配置 -->
+    <bean id="master_transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="master_dataSource"/>
+        <qualifier value="message"/>
+    </bean>
+
+    <!-- ucpaas_message 使用annotation注解方式配置事务 -->
+    <tx:annotation-driven transaction-manager="master_transactionManager"/>
+
+    <!-- 接口扫描的方式配置 message -->
+    <bean id="message_dataSource_1" parent="dataSourceParent">
+        <property name="url" value="${master.jdbc.url}"/>
+        <property name="username" value="${master.jdbc.username}"/>
+        <property name="password" value="${master.jdbc.password}"/>
+    </bean>
+
+    <bean id="message_sqlSessionFactory_1" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="message_dataSource_1"/>
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="typeAliasesPackage" value="com.ucpaas.sms.entity.message"/>
+        <property name="plugins">
+            <ref bean="jsmsPageInterceptor"/>
+        </property>
+    </bean>
+
+    <bean id="message_sqlSessionTemplate_1" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="message_sqlSessionFactory_1"/>
+    </bean>
+
+    <bean id="message_transactionManager_1" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="message_dataSource_1"/>
+        <qualifier value="message_new"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="message_transactionManager_1"/>
+
+    <!-- 扫描mapper-->
+    <!-- 因为在java使用mapper对象时，并不知道连的是那个库，所以mapper需根据库去分开包放-->
+    <mybatis:scan
+            base-package="com.ucpaas.sms.mapper.message,com.jsmsframework.*.mapper,com.jsmsframework.sms.send.mapper"
+            template-ref="message_sqlSessionTemplate_1"/>
+
+
+    <!-- Access -->
+    <!-- ucpaas_message_access 连接配置 -->
+    <bean id="access_dataSource" parent="dataSourceParent">
+        <property name="url" value="${access.jdbc.url}"/>
+        <property name="username" value="${access.jdbc.username}"/>
+        <property name="password" value="${access.jdbc.password}"/>
+    </bean>
+
+    <!-- ucpaas_message_access 配置mybitasSqlSessionFactoryBean -->
+    <bean id="access_sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="access_dataSource"/>
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*Mapper.xml"/>
+    </bean>
+
+    <!-- ucpaas_message_access 配置SqlSessionTemplate -->
+    <bean id="access_sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="access_sqlSessionFactory"/>
+    </bean>
+
+    <!-- ucpaas_message_access 事务配置 -->
+    <bean id="access_transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="access_dataSource"/>
+    </bean>
+
+    <!-- ucpaas_message_access 使用annotation注解方式配置事务 -->
+    <tx:annotation-driven transaction-manager="access_transactionManager"/>
+
+
+    <!-- Record -->
+    <!-- ucpaas_message_record 连接配置 -->
+    <bean id="record_dataSource" parent="dataSourceParent">
+        <property name="url" value="${record.jdbc.url}"/>
+        <property name="username" value="${record.jdbc.username}"/>
+        <property name="password" value="${record.jdbc.password}"/>
+    </bean>
+
+    <!-- ucpaas_message_record 配置mybitasSqlSessionFactoryBean -->
+    <bean id="record_sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="record_dataSource"/>
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*Mapper.xml"/>
+    </bean>
+
+    <!-- ucpaas_message_record 配置SqlSessionTemplate -->
+    <bean id="record_sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="record_sqlSessionFactory"/>
+    </bean>
+
+    <!-- ucpaas_message_record 事务配置 -->
+    <bean id="record_transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="record_dataSource"/>
+    </bean>
+
+    <!-- ucpaas_message_record 使用annotation注解方式配置事务 -->
+    <tx:annotation-driven transaction-manager="record_transactionManager"/>
+</beans>

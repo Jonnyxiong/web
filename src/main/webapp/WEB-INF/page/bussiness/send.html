@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>短信平台</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+    <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc"/>
+    <meta name="Baiduspider" content="noarchive"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <link rel="shortcut icon" th:href="${oem.tab_logo_url}"/>
+    <link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css}"/>
+    <link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/main.css' th:href="@{/css/main.css?v=1.0}"/>
+    <link rel="stylesheet" href="/font/iconfont.css" th:href="@{/font/iconfont.css}">
+    <link rel='stylesheet' th:href="@{/css/ie10.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/js/webuploader/webuploader.css}">
+    <!--[if !IE]> -->
+    <script src="js/jquery-3.0.0.min.js" th:src="@{/js/jquery-3.0.0.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/webuploader/webuploader.min.js}"></script>
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script th:src="@{/js/jquery-1.11.3.min.js}"></script>
+    <link rel='stylesheet' th:href="@{/css/ie9.css}"/>
+    <![endif]-->
+    <style>
+        .oem-title {
+            line-height: 38px;
+            height: 39px;
+            margin-right: 10px;
+        }
+
+        /*.layui-layer {
+            top: 142.5px !important;
+            left: 311.5px !important;
+        }*/
+
+        .active {
+            border-bottom: 3px solid green !important;
+        }
+
+        h1 {
+            height: 96%;
+        }
+
+        .changeMobileWay {
+            display: inline-block;
+            margin-left: 26px;
+        }
+
+        .grid-exportmobile {
+            padding-left: 54px;
+        }
+
+        #exportFile {
+            cursor: pointer;
+            -webkit-user-select: none;
+        }
+
+        #inputMobile {
+            cursor: pointer;
+            -webkit-user-select: none;
+        }
+
+        .processcontainer {
+            width: 155px;
+            border: 1px solid #6C9C2C;
+            height: 18px;
+            margin-left: 10px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #processbar {
+            background: green;
+            color: yellow;
+            float: left;
+            height: 100%;
+            text-align: center;
+            border-radius: 15px;
+            line-height: 150%;
+        }
+
+        #openDetail {
+            margin-top: 20px;
+        }
+
+        .item {
+            color: green;
+            height: 38px;
+            line-height: 38px;
+        }
+
+        .file_btn {
+            border: 1px solid green;
+            margin-left: 50px;
+        }
+    </style>
+
+</head>
+
+<body th:style="'color:' + ${oem.navigation_text_color} + ';'" ms-controller="my-app">
+<!--[if IE]>
+<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span>
+</div>
+<![endif]-->
+
+<div id="wrap" class="clearfix">
+
+    <!-- 左侧导航栏 bf-->
+    <div id="sidebar" th:replace="console :: #sidebar">
+        <div class="h100">
+            <div class="logo">
+                <a href="javascript:;"><img src="${ctx}/img/logo2.png"/></a>
+            </div>
+            <div class="nav">
+                <ul>
+
+                    <li th:each="topMenu : ${topMenus}">
+                        <a href="javascript:void(0)" th:href="${topMenu.url}?${topMenu.url}:'javascript:void(0)'"
+                           th:class="${topMenu.className}">
+                            <span th:text="${topMenu.name}">业务管理</span><i th:if="${topMenu.url}==null"></i>
+                        </a>
+
+                        <ul class="sub-nav" th:if="${not #lists.isEmpty(topMenu.subMenus)}" th:style="${topMenu.style}">
+                            <li th:each="subMenu : ${topMenu.subMenus}">
+                                <a href="sms/page" th:href="${subMenu.url}" th:text="${subMenu.name}"
+                                   th:class="${subMenu.className}">短信发送<span></span></a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li><a href="${ctx}/order/getProductListByClientId">首页</a></li>
+                    <li>
+                        <a href="javascript:void(0)">业务管理<i></i></a>
+                        <ul class="sub-nav" style="display:block;">
+                            <li><a href="${ctx}/sms/page" class="cur">短信发送<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/interShortMessage">国际短信报价<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/bussinessData">数据统计<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/query-sms-record">发送记录<span></span></a></li>
+                            <li><a href="${ctx}/bussiness/expireSMS">短信到期<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">账户管理<i></i></a>
+                        <ul class="sub-nav">
+                            <li><a href="${ctx}/account/accountInformation">账户资料<span></span></a></li>
+                            <li><a href="${ctx}/account/securityInfo">账户安全<span></span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="${ctx}/helpCenter/smsAccessIntroduce">帮助中心</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="contact-info">
+                联系代理商<br/>
+                138777777777<br/>
+                服务热线<br/>
+                400-777-9968<br/>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧导航栏 ef -->
+
+    <!-- 右边内容 bf -->
+    <div id="main">
+        <div class="main-con">
+            <div class="top idx-top clearfix" th:if="${session.IS_OEM}">
+                <h1 class="active"><a>短信发送</a></h1>
+                <h1><a href="${ctx}/bussiness/sendTask" th:href="@{/bussiness/sendTask}">发送任务</a></h1>
+                <h1><a href="${ctx}/bussiness/sendSMSTim" th:href="@{/bussiness/smsTimerSend}">定时发送</a></h1>
+                <h1><a href="${ctx}/bussiness/smsTimerSend" th:href="@{/bussiness/smsTimerTask}">定时任务</a></h1>
+                <div class="top-r ft-r" th:include="console :: user"></div>
+            </div>
+            <div class="top idx-top clearfix" th:if="!${session.IS_OEM}">
+                <h1><a>短信发送</a></h1>
+                <div class="top-r ft-r" th:include="console :: user"></div>
+            </div>
+            <div class="con-out" th:if="${session.IS_OEM}">
+                <div class="content send-content">
+                    <div class="num-pool">
+                        <label><span class="red">*</span>号码池</label>
+
+                        <div class="changeMobileWay">
+                            <label for="exportFile">
+                                <input type="radio" name="exportWay" value="0" id="exportFile" checked> 批量导入
+                            </label>
+                            <label for="inputMobile">
+                                <input type="radio" name="exportWay" value="1" id="inputMobile"> 手动输入
+                            </label>
+                        </div>
+                        <p class="orange-font" style="margin-bottom:10px;"><img src="img/warning.png"
+                                                                                th:src="@{/img/warning.png}"/>支持批量输入和批量导入，批量输入以“,”号分隔，批量导入提供导入表模板下载。若号码中出现国际短信号码，直接按国际短信价格扣费
+                            <a href="#" onclick="javascript:if(!isSessionValid()){return false}"
+                               th:href="@{/bussiness/price}">点击查看国际短信报价></a></p>
+                        <div class="grid-exportmobile">
+                            <!--<a class="green-btn importMobile" style="margin-top:0;" href="javascript:;">批量导入手机号</a>-->
+                            <!-- 断点续传   start-->
+                            <!-- 隐藏域 实时保存上传进度 -->
+                            <input id="progress" type="hidden"/>
+                            <div id="uploader" class="wu-example">
+                                <div class="btns">
+                                    <div id="picker" class="webuploader-container">
+                                        <a class="webuploader-pick green-btn">批量导入手机号</a><span class="red">&nbsp;推荐使用txt或csv格式文件</span>
+                                        <div id="rt_rt_1bchdejhrarjdvd11h41eoh1nt1"
+                                             style="position: absolute; top: 0px; left: 0px; width: 88px; height: 35px; overflow: hidden; bottom: auto; right: auto;">
+                                            <input id="file_bp" name="file" class="webuploader-element-invisible"
+                                                   type="file"/>
+                                            <label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255) none repeat scroll 0% 0%;"></label>
+                                        </div>
+                                    </div>
+                                    <!-- 文件列表：选择文件后在该div显示 -->
+                                    <div id="thelist" class="uploader-list list-group-item clearfix ng-hide"
+                                         style="margin-left:20px;"></div>
+                                    <label class="text-right"
+                                           style="font-weight:100;float:left;margin-left:15px;width:144px;margin-right:15px;"></label>
+                                    <!--<button class="btn m-b-xs btn-sm btn-info btn-addon" id="startOrStopBtn" style="padding:7px 50px;margin-top:20px;">开始上传</button>-->
+                                </div>
+                            </div>
+                            <form method="post" id="importMobileForm" style="display: none;">
+                                <input type="file" id="importMobile" name="excel" accept=".xls,.xlsx"
+                                       onchange="importMobileChange()"/>
+                            </form>
+                            <!--<a href="sms/template" onclick="javascript:if(!isSessionValid()){return false}" id="downTemplate" th:href="@{/bussiness/mobile-example}"><i>下载批量导入模板</i></a>-->
+                            <a id="downTemplate"><i>下载批量导入模板</i></a>
+                        </div>
+                        <div class="grid-mobilepool hide">
+                            <textarea id="mobile" name="mobile"
+                                      placeholder="例如：18889462200，16656208020；以英文“,”号分隔"></textarea>
+                        </div>
+                    </div>
+                    <!-- grid -->
+                    <div class="clearfix" style="margin-bottom:10px;">
+                        <label class="oem-title ft-l"><span class="white">*</span>选择模板</label>
+                        <div class="ft-l ctx">
+                            <a class="btn btn-green js-autoTemplate" href="javascript:;">报备模板</a>
+                        </div>
+                    </div>
+                    <div class="msm-type">
+                        <label><span class="red">*</span>短信类型</label>
+                        <span class="select js-pop" id="selctType">请选择..</span>
+                        <input id="smstype" type="hidden" value="-1"/>
+                        <ul class="select-list js-pop" style="left:70px;">
+                            <li class="js-yz" value="4">验证码</li>
+                            <li class="js-tz" value="0">通知</li>
+                            <li class="js-hyyx" value="5">会员营销</li>
+                        </ul>
+                        <label><span class="red">*</span>短信签名</label>
+                        <input type="text" id="sign" name="sign" placeholder="长度范围2-8个字符"/>
+                        <span class="demo">例如：【公司名】</span>
+                        <div class="msm-info clearfix msg-ctx">
+                            <label class="ft-l"><span class="red">*</span>短信内容</label>
+                            <label class="ft-l fake-sign" style="margin-left:75px;"><span>【</span><span
+                                    id="fakeSign"></span><span>】</span></label>
+                            <textarea id="content" name="content" placeholder="不得超过500个字符" maxlength="500"></textarea>
+                            <div><span id="letterNum">0</span>/500</div>
+                            <p class="orange-font"><img src="img/warning.png" th:src="@{/img/warning.png}"/>签名长度范围2-8个字符，字母、符号、汉字都算1个字符；短信内容字符范围5~500字符
+                            </p>
+                            <div style="position: static;"><span style="margin-left:20px;">计费条数：<span style="color:red"
+                                                                                                      id="charge">1</span>条</span>
+                            </div>
+                            <a class="green-btn smsSubmit" style="display: block;width:40px;text-align: center;"
+                               href="javascript:;" onclick="smsSubmit()">发送</a>
+                        </div>
+                    </div>
+                </div>
+                <img id="preview" alt="" src="" style="display: none"/>
+                <div class="btm btm-copyright " th:include="console :: footer">
+                    <p>© 2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</p>
+                </div>
+            </div>
+            <div class="con-out" th:if="!${session.IS_OEM}">
+                <div class="content send-content">
+                    <!-- grid -->
+                    <div class="num-pool clearfix">
+                        <label class="title ft-l"><span class="red">*</span>号码池</label>
+                        <div class="ft-l ctx">
+                            <div class="mb20">
+                                <a class="btn btn-green importMobile" href="javascript:;">批量导入手机号</a>
+                                <form method="post" id="importMobileForm" style="display: none;">
+                                    <input type="file" id="importMobile" name="excel" onchange="importMobileChange()"/>
+                                </form>
+                                <a href="#" onclick="javascript:if(!isSessionValid()){return false}"
+                                   th:href="@{/bussiness/mobile-example}"><i>下载批量导入模板</i></a>
+                            </div>
+                            <textarea id="mobile" name="mobile" placeholder="例如：18889462200，16656208020；以“,”号分隔"
+                                      style="margin-left:0;"></textarea>
+                            <p class="mt10" style="margin-left:0;"><span></span>支持批量输入和批量导入，批量输入以“,”号分隔，批量导入提供导入表模板下载。
+                            </p>
+                        </div>
+                    </div>
+                    <!-- grid -->
+                    <div class="clearfix">
+                        <label class="title ft-l"><span class="white">*</span>选择模板</label>
+                        <div class="ft-l ctx">
+                            <input type="hidden" name="templateId" id="templateId">
+                            <a class="btn btn-green js-template" href="javascript:;">报备模板</a>
+                            <a class="btn btn-white ml20 js-clear-template" href="javascript:;">清空模板</a>
+                        </div>
+                    </div>
+                    <!-- grid -->
+                    <div class="msm-type clearfix mt20">
+                        <label class="title ft-l"><span class="red">*</span>短信类型</label>
+                        <div class="ctx ft-l">
+                            <span class="select js-pop" id="selctType" style="margin-left:0;">请选择..</span>
+                            <input id="smstype" type="hidden" value="-1"/>
+                            <ul class="select-list js-pop">
+                                <li class="js-yz" value="4">验证码</li>
+                                <li class="js-tz" value="0">通知</li>
+                                <li class="js-hyyx" value="5">会员营销</li>
+                            </ul>
+                            <label><span class="red">*</span>短信签名</label>
+                            <input type="text" id="sign" name="sign" placeholder="长度范围2-8个字符" class=""/>
+                            <span class="demo">例如：【云之讯】</span>
+                        </div>
+                    </div>
+                    <!-- grid -->
+                    <div class="msm-type clearfix mt20">
+                        <label class="ft-l title"><span class="red">*</span>模板内容</label>
+                        <div class="ctx ft-l msg-ctx">
+                            <div>
+                                <label class="ft-l fake-sign"><span>【</span><span
+                                        id="fakeSign"></span><span>】</span></label>
+                                <textarea id="content" name="content" placeholder="不得超过500个字符" maxlength="500"
+                                          style="margin-left:0;"></textarea>
+                                <div class="tx-r num-show"><span id="letterNum">2</span>/500</div>
+                            </div>
+                            <div class="ctx ft-l">
+                                <a class="btn btn-green smsSubmit" href="javascript:;" onclick="smsSubmit()">发送</a>
+                                <span style="margin-left:20px;">计费条数：<span style="color:red"
+                                                                           id="charge">1</span>条</span>
+                                <p class="mt10" style="margin-left:0;"><span></span>签名长度范围2-8个字符，模板内容字符范围5~500字符</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btm-copyright">
+                    <p>© 2016 ucpaas.com 版权所有 粤ICP备14046848号</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 右边内容 ef -->
+</div>
+<!-- 智能模板选择弹框 start -->
+<div ms-controller="my-app-auto">
+    <div class="grid-autoTemplate grid-template">
+        <div class="crumbs clearfix">
+            <a href="javascript:;" :class="[(!@toggle?'active':'')]" ms-mouseover="changeUI(1)">智能模板</a>
+            <a href="javascript:;" :class="[(@toggle?'active':'')]" ms-mouseover="changeUI(0)">通用模板</a>
+        </div>
+        <div class="order-option" style="width:95%;margin:10px auto 0" :visible="!@toggle">
+            <span>模板属性：</span>
+            <select class="sendState" ms-duplex="@params.smsType">
+                <option ms-for="el in @smsTypeOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+            </select>
+            <input type="text" placeholder="模板ID/签名/内容" ms-duplex="@params.applicationScenarios">
+            <a href="javascript:;" class="btn-green" style="margin-left:10px;" ms-click="@search">搜索</a>
+        </div>
+        <div class="order-option" style="width:95%;margin:10px auto 0" :visible="@toggle">
+            <span>模板属性：</span>
+            <select class="sendState" ms-duplex="@params_common.smsType">
+                <option ms-for="el in @smsTypeOptions" ms-attr="{value: el.value}">{{el.text}}</option>
+            </select>
+            <input type="text" placeholder="内容" ms-duplex="@params_common.content">
+            <a href="javascript:;" class="btn-green" style="margin-left:10px;" ms-click="@searchcommon">搜索</a>
+        </div>
+        <div class="" :visible="!@toggle">
+            <table class="grid-table grid-table-tx-c grid-table-border">
+                <thead>
+                <tr>
+                    <th class="w-td1">模板ID</th>
+                    <th class="w-td2">短信签名</th>
+                    <th class="w-td2">模板属性</th>
+                    <th class="w-td2">模板类型</th>
+                    <th class="w-td4">模板内容</th>
+                    <th class="w-td1">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="el in @msg_data">
+                    <input type="hidden" class="template-smstype" ms-duplex="el.smsType"/>
+                    <td><span class="template-id">{{el.templateId}}</span></td>
+                    <td><p class="ellipsis sign">{{el.sign}}</p></td>
+                    <td>
+                        <p class="ellipsis mold">
+                            <span ms-if="el.smsType == 10">行业</span>
+                            <span ms-if="el.smsType == 11">会员营销</span>
+                            <span ms-if="el.smsType != 11 && el.smsType != 10">-</span>
+                        </p>
+                    </td>
+                    <td>
+                        <p class="ellipsis">
+                            <span ms-if="el.templateType == 0">固定模板</span>
+                            <span ms-if="el.templateType == 1">变量模板</span>
+                        </p>
+                    </td>
+                    <td><p class="ellipsis ctx temp-cont">{{el.content}}</p></td>
+                    <td><a href="javascript:;" class="btn-link js-autoImport" ms-class="@isDark(el.type)">导入</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 分页 -->
+            <div class="pagination clearfix">
+                <div class="ft-r">
+                    <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                    <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                </div>
+                <div class="pagination-btn ft-r">
+                    <a href="javascript:;" class="first page-btn" ms-click='@firstPage'></a>
+                    <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                    <a href="javascript:;" class="now">{{@pageNow}}/{{@total}}</a>
+                    <a href="javascript:;" class="after page-btn" ms-click='@nextPage'></a>
+                    <a href="javascript:;" class="last page-btn" ms-click='@lastPage'></a>
+                </div>
+                <div class="show-count ft-r">共有<span class="allCount">{{@totalCount}}</span>条</div>
+            </div>
+            <!-- 分页 end  -->
+        </div>
+        <div class="" :visible="@toggle">
+            <table class="grid-table grid-table-tx-c grid-table-border">
+                <thead>
+                <tr>
+                    <th class="w-td1">序号</th>
+                    <th class="w-td2">模板属性</th>
+                    <th class="w-td2">模板类型</th>
+                    <th class="w-td6">模板内容</th>
+                    <th class="w-td1">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="el in @msg_common_data">
+                    <input type="hidden" class="template-smstype" ms-duplex="el.smsType"/>
+                    <td><span class="template-id">{{el.orderNo}}</span></td>
+                    <td>
+                        <p class="ellipsis mold">
+                            <span ms-if="el.smsType == 10">行业</span>
+                            <span ms-if="el.smsType == 11">会员营销</span>
+                            <span ms-if="el.smsType != 11 && el.smsType != 10">-</span>
+                        </p>
+                    </td>
+                    <td>
+                        <p class="ellipsis">
+                            <span ms-if="el.templateType == 0">固定模板</span>
+                            <span ms-if="el.templateType == 1">变量模板</span>
+                        </p>
+                    </td>
+                    <td><p class="ellipsis ctx temp-cont">{{el.content}}</p></td>
+                    <td><a href="javascript:;" class="btn-link js-autoImport" ms-class="@isDark(el.type)">导入</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 分页 -->
+            <div class="pagination clearfix" :visible="!@toggle">
+                <div class="ft-r">
+                    <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                    <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                </div>
+                <div class="pagination-btn ft-r">
+                    <a href="javascript:;" class="first page-btn" ms-click='@firstPage'></a>
+                    <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                    <a href="javascript:;" class="now">{{@pageNow}}/{{@total}}</a>
+                    <a href="javascript:;" class="after page-btn" ms-click='@nextPage'></a>
+                    <a href="javascript:;" class="last page-btn" ms-click='@lastPage'></a>
+                </div>
+                <div class="show-count ft-r">共有<span class="allCount">{{@totalCount}}</span>条</div>
+            </div>
+            <div class="pagination clearfix" :visible="@toggle">
+                <div class="ft-r">
+                    <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                    <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                </div>
+                <div class="pagination-btn ft-r">
+                    <a href="javascript:;" class="first page-btn" ms-click='@firstPage'></a>
+                    <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                    <a href="javascript:;" class="now">{{@pageNow_common}}/{{@total_common}}</a>
+                    <a href="javascript:;" class="after page-btn" ms-click='@nextPage'></a>
+                    <a href="javascript:;" class="last page-btn" ms-click='@lastPage'></a>
+                </div>
+                <div class="show-count ft-r">共有<span class="allCount">{{@totalCount_common}}</span>条</div>
+            </div>
+            <!-- 分页 end  -->
+        </div>
+    </div>
+</div>
+<!-- 智能模板选择弹框 end  -->
+<!-- 模板选择弹框 start -->
+<div ms-controller="my-app">
+    <div class="grid-template grid-smsTemplate">
+        <div class="crumbs clearfix">
+            <a href="javascript:;" class="active ft-l">短信模板库</a>
+            <a href="javascript:;" class="ft-r btn btn-green btn-small"
+               onclick="javascript:if(!isSessionValid()){return false}" th:href="@{/bussiness/template}">添加模板</a>
+        </div>
+        <div class="">
+            <table class="grid-table grid-table-tx-c grid-table-border">
+                <thead>
+                <tr>
+                    <th class="w-td1">模板ID</th>
+                    <th class="w-td2">短信签名</th>
+                    <th class="w-td2">模板类型</th>
+                    <th class="w-td6">模板内容</th>
+                    <th class="w-td1">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="el in @msg_data">
+                    <input type="hidden" class="template-smstype" ms-duplex="el.type"/>
+                    <input type="hidden" class="template-smstypename" ms-duplex="el.type_name"/>
+                    <td><span class="template-id">{{el.template_id}}</span></td>
+                    <td><p class="ellipsis sign">{{el.sign}}</p></td>
+                    <td><p class="ellipsis mold">{{el.type_name}}</p></td>
+                    <td><p class="ellipsis ctx temp-cont">{{el.content}}</p></td>
+                    <td><a href="javascript:;" class="btn-link js-import" ms-class="@isDark(el.type)">导入</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 分页 -->
+            <div class="pagination clearfix">
+                <div class="ft-r">
+
+                    <input id="jump-to" type="text" name="jump-to" class="jump-page" ms-duplex="@jumpto"/>
+                    <a href="javascript:;" ms-click='@jumpPage' class="btn-page ml10">跳转</a>
+                </div>
+                <div class="pagination-btn ft-r">
+                    <a href="javascript:;" class="first page-btn" ms-click='@firstPage'></a>
+                    <a href="javascript:;" class="pre page-btn" ms-click='@prePage'></a>
+                    <a href="javascript:;" class="now">{{@pageNow}}/{{@total}}</a>
+                    <a href="javascript:;" class="after page-btn" ms-click='@nextPage'></a>
+                    <a href="javascript:;" class="last page-btn" ms-click='@lastPage'></a>
+                </div>
+                <div class="show-count ft-r">共有<span class="allCount">{{@totalCount}}</span>条</div>
+            </div>
+            <!-- 分页 end  -->
+        </div>
+
+    </div>
+</div>
+<!-- 模板选择弹框 end  -->
+
+<!--上传弹窗-->
+<div style="display: none" id="openDetail">
+    <table class="grid-table grid-table-tx-c grid-table-border">
+        <thead>
+        <tr>
+            <th class="" style="width: 180px;">文件名称</th>
+            <th class="" style="width: 80px">文件大小</th>
+            <th class="" style="width: 180px">进度/状态</th>
+            <th class="" style="width: 180px">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td id="file_name"></td>
+            <td id="file_size"></td>
+            <td>
+                <div class="processcontainer">
+                    <div id="processbar" style="width:0%;"></div>
+                </div>
+            </td>
+            <td>
+                <a id="startuploader" href="javascript:;" class=" ml10"></a>
+                <a id="file_id" class="shanchu ml10">取消</a>
+                <input type="hidden" id="fileMd5">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<input type="hidden" id="fileType">
+<form action="" id="downloadForm" style="display: none">
+    <input type="hidden" name="path" id="pathFile">
+</form>
+<div id="temType" style="display: none;text-align: center;margin-top: 20px;">
+    <div>
+        <a th:href="@{/bussiness/mobile-example-csv}"><img th:src="@{/img/template/csv.jpg}" alt=""></a>
+        <a style="margin-left: 20px;" th:href="@{/bussiness/mobile-example-txt}"><img th:src="@{/img/template/txt.jpg}" alt=""></a>
+        <a style="margin-left: 20px;" th:href="@{/bussiness/mobile-example}"><img th:src="@{/img/template/xlsx.jpg}" alt=""></a>
+    </div>
+    <div>
+        <span class="red" style="margin-right: 45px;">推荐</span>
+        <span class="red" style="margin-right: 73px;">推荐</span>
+    </div>
+</div>
+</body>
+<script src="js/common.js" th:src="@{/js/common.js?v=1.0}"></script>
+<script src="js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+<script src="js/validate/smsp.validate.js" th:src="@{/js/validate/smsp.validate.js}"></script>
+<script src="js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/sendSms.js?v=1.1}"></script>
+<script type="text/javascript" th:src="@{/js/avalon.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var submit_flag = false;
+    var TIME_COUNT = 3;
+    var SUBMIT_TOTAL = 0;
+    var count = 3;
+    var timer = null;
+    var img_url = [[${img_url}]];
+    //    var url = 'http://localhost:8071';
+    //    var url = 'http://img.sms.jsms.com';
+    var pathFileName;
+    var flag = [[${accountModel.clientId}]]
+    $(function () {
+        // 进入页面时判断用户是否已经完成资质认证
+        // 绑定批量导入手机号点击事件
+//        $(".importMobile").on("click", function(e){
+//            e.preventDefault();
+//            $("#random").val(Math.random());
+//            $("#importMobile").trigger('click');
+//        })
+
+
+        // 短信签名和短信内容控制事件
+        contentAndSignController();
+
+        // 过滤不合法手机号码
+        mobileCheckListener();
+        // 短信内容字数计数器
+        letterNumListener();
+
+        $(document).bind("click", function (e) {
+            var target = $(e.target);
+            if (target.closest(".js-pop").length == 0) {
+                $(".select-list").hide();
+            }
+        })
+        $("#exportFile").click(function () {
+            $(".grid-exportmobile").removeClass("hide");
+            $(".grid-mobilepool").addClass("hide");
+        })
+
+        $("#inputMobile").click(function () {
+            $(".grid-exportmobile").addClass("hide");
+            $(".grid-mobilepool").removeClass("hide");
+        })
+
+
+        /*******************初始化参数*********************************/
+        var $list = $('#thelist'),//文件列表
+            $btn = $('#startuploader'),//开始上传按钮
+            state = 'pending',//初始按钮状态
+            uploader; //uploader对象
+        var fileMd5;  //文件唯一标识
+        /******************下面的参数是自定义的*************************/
+        var fileName;//文件名称
+        var oldJindu;//如果该文件之前上传过 已经上传的进度是多少
+        var count = 0;//当前正在上传的文件在数组中的下标，一次上传多个文件时使用
+        var filesArr = new Array();//文件数组：每当有文件被添加进队列的时候 就push到数组中
+        var map = {};//key存储文件id，value存储该文件上传过的进度
+        /***************************************************** 监听分块上传过程中的三个时间点 start ***********************************************************/
+        WebUploader.Uploader.register({
+                "before-send-file": "beforeSendFile",//整个文件上传前
+                "before-send": "beforeSend",  //每个分片上传前
+                "after-send-file": "afterSendFile",  //分片上传完毕
+            },
+            {
+                //时间点1：所有分块进行上传之前调用此函数
+                beforeSendFile: function (file) {
+                    var deferred = WebUploader.Deferred();
+                    //1、计算文件的唯一标记fileMd5，用于断点续传  如果.md5File(file)方法里只写一个file参数则计算MD5值会很慢 所以加了后面的参数：10*1024*1024
+                    (new WebUploader.Uploader()).md5File(file, 0, 10 * 1024 * 1024).progress(function (percentage) {
+                        $('#' + file.id).find('p.state').text('正在读取文件信息...');
+                    })
+                        .then(function (val) {
+                            $('#' + file.id).find("p.state").text("成功获取文件信息...");
+                            fileMd5 = val;
+                            //获取文件信息后进入下一步
+                            deferred.resolve();
+                        });
+
+                    fileName = file.name;
+                    return deferred.promise();
+                },
+                //时间点2：如果有分块上传，则每个分块上传之前调用此函数
+                beforeSend: function (block) {
+                    var deferred = WebUploader.Deferred();
+                    $.ajax({
+                        type: "POST",
+                        url: img_url + "/chunks/check.html",  //ajax验证每一个分片
+                        data: {
+                            fileName: fileName,
+                            progress: $("#progress").val(),
+                            fileMd5: fileMd5,  //文件唯一标记
+                            chunk: block.chunk,  //当前分块下标
+                            chunkSize: block.end - block.start,//当前分块大小
+                            flag: flag
+                        },
+                        cache: false,
+                        async: false,  // 与js同步
+                        timeout: 1000, //todo 超时的话，只能认为该分片未上传过
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.isExist) {
+                                //分块存在，跳过
+                                deferred.reject();
+                            } else {
+                                //分块不存在或不完整，重新发送该分块内容
+                                deferred.resolve();
+                            }
+                        }
+                    });
+                    this.owner.options.formData.fileMd5 = fileMd5;
+                    deferred.resolve();
+                    return deferred.promise();
+                },
+                //时间点3：所有分块上传成功后调用此函数
+                afterSendFile: function () {
+                    //如果分块上传成功，则通知后台合并分块
+                    $.ajax({
+                        type: "POST",
+                        url: img_url + "/chunks/merge.html",  //ajax将所有片段合并成整体
+                        data: {
+                            fileName: fileName,
+                            fileMd5: fileMd5,
+                            flag: flag
+                        },
+                        success: function (data) {
+                            count++; //每上传完成一个文件 count+1
+                            if (count <= filesArr.length - 1) {
+                                uploader.upload(filesArr[count].id);//上传文件列表中的下一个文件
+                            }
+
+                            //合并成功之后的操作
+                            pathFileName = JSON.parse(data).pathFileName;
+                            $("#pathFile").val(pathFileName)
+                            ityzl_SHOW_LOAD_LAYER("正在努力解析文件，请勿刷新页面...");
+                            console.log("解析前》》》》》》》");
+                            $.ajax({
+                                type: "post",
+                                url: /*[[@{/bussiness/parsefile}]]*/'',
+                                data: {
+                                    filePath: pathFileName
+                                },
+                                dataType: "json",
+                                beforeSend: function () {
+
+                                    //ityzl_SHOW_LOAD_LAYER("正在努力解析文件，请勿刷新页面...");
+                                },
+                                error:function(XMLHttpRequest, textStatus, errorThrown){
+                                    layer.closeAll();
+                                    layer.msg("解析超时...你可以尝试更换文件格式",{icon:2});
+                                },
+                                success: function (data) {
+                                    layer.closeAll();
+                                    if (data != null) {
+                                        if (data.data) {
+                                            var d = data.data;
+                                            SUBMIT_TOTAL = d.submitTotal || 0;
+                                            var repeatNum = d.repeatNum || 0;
+                                            var errNum = d.errNum || 0;
+                                            var total = SUBMIT_TOTAL + repeatNum + errNum;
+                                            var html = '<span style="margin-left: 50px;">共计号码数：<span style="color:black;">' + (total) + '</span>个，格式有效号码数：<span style="color:green;">' + SUBMIT_TOTAL + '</span></span>个，已过滤错误号码：<span style="color:red;">' + (errNum + repeatNum) + '</span>个</span>'
+                                            $(".item").append(html)
+                                            $("#picker").hide(500);
+                                        } else {
+                                            layer.msg(data.msg);
+                                            var fileItem = $(".btnRemoveFile").parent();
+                                            uploader.removeFile($(fileItem).attr("id"), true);
+                                            $(fileItem).fadeOut(function () {
+                                                $(fileItem).remove();
+                                            });
+                                            //数组中的文件也要删除
+                                            for (var i = 0; i < filesArr.length; i++) {
+                                                if (filesArr[i].id == $(fileItem).attr("id")) {
+                                                    filesArr.splice(i, 1);//i是要删除的元素在数组中的下标，1代表从下标位置开始连续删除一个元素
+                                                }
+                                            }
+                                            count = 0;
+                                            $("#picker").show(500);
+                                        }
+                                    } else {
+                                        layer.msg('请求错误，请稍后再试...')
+                                        var fileItem = $(".btnRemoveFile").parent();
+                                        uploader.removeFile($(fileItem).attr("id"), true);
+                                        $(fileItem).fadeOut(function () {
+                                            $(fileItem).remove();
+                                        });
+                                        //数组中的文件也要删除
+                                        for (var i = 0; i < filesArr.length; i++) {
+                                            if (filesArr[i].id == $(fileItem).attr("id")) {
+                                                filesArr.splice(i, 1);//i是要删除的元素在数组中的下标，1代表从下标位置开始连续删除一个元素
+                                            }
+                                        }
+                                        count = 0;
+                                        $("#picker").show(500);
+                                    }
+
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        /***************************************************** 监听分块上传过程中的三个时间点 end **************************************************************/
+        /************************************************************ 初始化WebUploader start ******************************************************************/
+        uploader = WebUploader.create({
+            auto: false,//选择文件后是否自动上传
+            chunked: true,//开启分片上传
+            formData: {flag: flag},
+            chunkSize: 1 * 1024 * 1024,// 如果要分片，分多大一片？默认大小为2M
+            chunkRetry: 3,//如果某个分片由于网络问题出错，允许自动重传多少次
+            threads: 3,//上传并发数。允许同时最大上传进程数[默认值：3]
+            duplicate: true,//是否重复上传（同时选择多个一样的文件），true可以重复上传
+            prepareNextFile: true,//上传当前分片时预处理下一分片
+            swf: '/js/webuploader/Uploader.swf',// swf文件路径
+            server: img_url + '/chunks/file_save.html',// 文件接收服务端
+            fileSizeLimit: 6 * 1024 * 1024 * 1024,//6G 验证文件总大小是否超出限制, 超出则不允许加入队列
+            fileSingleSizeLimit: 50 * 1024 * 1024,  //50M 验证单个文件大小是否超出限制, 超出则不允许加入队列
+            pick: {
+                id: '#picker', //这个id是你要点击上传文件按钮的外层div的id
+                multiple: false //是否可以批量上传，true可以同时选择多个文件
+            },
+            resize: false,  //不压缩image, 默认如果是jpeg，文件上传前会先压缩再上传！
+            accept: {
+                //允许上传的文件后缀，不带点，多个用逗号分割
+                extensions: "csv,txt,xls,xlsx",
+                mimeTypes: '.csv,.txt,.xls,.xlsx',
+            }
+        });
+        /************************************************************ 初始化WebUploader end ********************************************************************/
+        //当有文件被添加进队列的时候（点击上传文件按钮，弹出文件选择框，选择完文件点击确定后触发的事件）
+        uploader.on('fileQueued', function (file) {
+            //限制单个文件的大小 超出了提示
+            if (file.size > 50 * 1024 * 1024) {
+                alert("单个文件大小不能超过50M");
+                return false;
+            }
+            if (file.name.length > 30) {
+                alert("文件名长度不能超过30个字符");
+                return false;
+            }
+            //todo 打开弹窗,位置待定
+            layer.open({
+                type: 1,
+                title: false, //不显示标题
+                area: ['700px', '140px'],
+                content: $('#openDetail'),
+                cancel: function (index, layero) {
+
+                    if(confirm('列表中有未上传完成的文件，确定要放弃上传吗？')){ //只有当点击confirm框的确定时，该层才会关闭
+                        uploader.md5File(file, 0, 10 * 1024 * 1024)
+
+                        // 及时显示进度
+                            .progress(function (percentage) {
+                            })
+                            // 完成
+                            .then(function (val) {
+                                fileMd5 = val;
+                                    //do something
+                                    uploader.stop(true);
+                                    $.ajax({
+                                        type: "POST",
+                                        url: img_url + '/chunks/del_chunks.html',
+                                        data: {
+                                            fileName: file.name,//文件名
+                                            fileMd5: fileMd5,
+                                            flag: flag
+                                        },
+                                        cache: false,
+                                        async: false,  // 同步
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data.isDeleted == 1) {
+                                                layer.msg("已删除文件", {time: 1500}, function () {
+                                                    layer.closeAll();
+                                                    deleteFile()
+                                                });
+                                            } else {
+                                                layer.msg('删除失败');
+                                            }
+                                        }
+                                    });
+                            });
+                        layer.close(index)
+                }
+                    return false;
+            }
+        });
+            if (file.size >= 1 * 1024 * 1024) {
+                $("#file_size").text(Math.round(file.size / 1024 / 1024) + "M");
+            } else {
+                $("#file_size").text((file.size / 1024).toFixed(2) + "KB");
+            }
+            $("#file_name").text(file.name);
+
+            $("#fileType").val(file.ext);
+            /*************如果一次只能选择一个文件，再次选择替换前一个，就增加如下代码*******************************/
+            //清空文件队列
+//                $list.html("");
+            //清空文件数组
+//                filesArr=[];
+            /*************如果一次只能选择一个文件，再次选择替换前一个，就增加以上代码*******************************/
+            //将选择的文件添加进文件数组
+            filesArr.push(file);
+            uploader.md5File(file, 0, 10 * 1024 * 1024)
+
+            // 及时显示进度
+                .progress(function (percentage) {
+                })
+
+                // 完成
+                .then(function (val) {
+                    fileMd5 = val;
+                    $("#fileMd5").val(val);
+                    $.ajax({
+                        type: "POST",
+                        url: img_url + "/chunks/progress.html",  //先检查该文件是否上传过，如果上传过，上传进度是多少
+                        data: {
+                            fileName: file.name,  //文件名
+                            fileSize: file.size,
+                            fileMd5: val,
+                            flag: flag
+
+                        },
+                        cache: false,
+                        async: false,  // 同步
+                        dataType: "json",
+                        success: function (res) {
+                            console.log('-----:',res)
+                            //上传过
+                            var data = res.progress * 1;
+                            var pathFileName = res.pathFileName;
+                            if (data == 100) {
+                                //上传过的进度的百分比
+                                oldJindu = data / 100;
+                                //如果上传过 上传了多少
+                                var progressStyle = "width:" + data + "%";
+                                //将上传过的进度存入map集合
+                                map[file.id] = oldJindu;
+                                $("#processbar").css('width', data + '%')
+                                $("#processbar").text(data + '%')
+                                $list.append('<span id="' + file.id + '" class="item">' +
+                                    '<span class="info" onclick="downloadFile()" style="text-decoration: underline;cursor: pointer;">' + file.name + '</span>' +
+                                    '<a href="javascript:void(0);" class="btn btn-lg btn-success file_btn btnRemoveFile">删除</a>' +
+                                    '</span>');
+                                layer.closeAll();
+                                $("#pathFile").val(pathFileName);
+                                ityzl_SHOW_LOAD_LAYER("正在努力解析文件，请勿刷新页面...");
+                                $.ajax({
+                                    type: "post",
+                                    url: /*[[@{/bussiness/parsefile}]]*/'',
+                                    data: {
+                                        filePath: pathFileName
+                                    },
+                                    cache: false,
+                                    dataType: "json",
+                                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                                        layer.closeAll();
+                                        layer.msg("解析超时...你可以尝试更换文件格式",{icon:2});
+                                    },
+                                    success: function (data) {
+                                        layer.closeAll();
+                                        if (data != null) {
+                                            if (data.data) {
+                                                var d = data.data;
+                                                SUBMIT_TOTAL = d.submitTotal || 0;
+                                                var repeatNum = d.repeatNum || 0;
+                                                var errNum = d.errNum || 0;
+                                                var total = SUBMIT_TOTAL + repeatNum + errNum;
+                                                var html = '<span style="margin-left: 50px;">共计号码数：<span style="color:black;">' + (total) + '</span>个，格式有效号码数：<span style="color:green;">' + SUBMIT_TOTAL + '</span></span>个，已过滤错误号码：<span style="color:red;">' + (errNum + repeatNum) + '</span>个</span>'
+                                                $(".item").append(html)
+                                                $("#picker").hide(500);
+                                            } else {
+                                                layer.msg(data.msg);
+                                                var fileItem = $(".btnRemoveFile").parent();
+                                                uploader.removeFile($(fileItem).attr("id"), true);
+                                                $(fileItem).fadeOut(function () {
+                                                    $(fileItem).remove();
+                                                });
+                                                //数组中的文件也要删除
+                                                for (var i = 0; i < filesArr.length; i++) {
+                                                    if (filesArr[i].id == $(fileItem).attr("id")) {
+                                                        filesArr.splice(i, 1);//i是要删除的元素在数组中的下标，1代表从下标位置开始连续删除一个元素
+                                                    }
+                                                }
+                                                count = 0;
+                                                $("#picker").show(500);
+                                            }
+                                        } else {
+                                            layer.msg('请求错误，请稍后再试...')
+                                            var fileItem = $(".btnRemoveFile").parent();
+                                            uploader.removeFile($(fileItem).attr("id"), true);
+                                            $(fileItem).fadeOut(function () {
+                                                $(fileItem).remove();
+                                            });
+                                            //数组中的文件也要删除
+                                            for (var i = 0; i < filesArr.length; i++) {
+                                                if (filesArr[i].id == $(fileItem).attr("id")) {
+                                                    filesArr.splice(i, 1);//i是要删除的元素在数组中的下标，1代表从下标位置开始连续删除一个元素
+                                                }
+                                            }
+                                            count = 0;
+                                            $("#picker").show(500);
+                                        }
+
+                                    }
+                                });
+
+                            } else {//没有上传过
+                                $("#processbar").css('width', '0%')
+                                $list.append('<span id="' + file.id + '" class="item">' +
+                                    '<span class="info" onclick="downloadFile()" style="text-decoration: underline;cursor: pointer;">' + file.name + '</span>' +
+                                    '<a href="javascript:void(0);" class="btn btn-lg btn-success file_btn btnRemoveFile">删除</a>' +
+                                    '</span>');
+                                uploader.upload(file.id);
+                            }
+                        }
+                    });
+                });
+
+            uploader.stop(true);
+
+        });
+        //文件上传过程中创建进度条实时显示
+        uploader.on('uploadProgress', function (file, percentage) {
+            var $li = $('#' + file.id),
+                $percent = $li.find('.progress .progress-bar');
+            //避免重复创建
+            if (!$percent.length) {
+                $percent = $('<div class="progress progress-striped active">' +
+                    '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+                    '</div>' +
+                    '</div>').appendTo($li).find('.progress-bar');
+            }
+            //将实时进度存入隐藏域
+            $("#progress").val(Math.round(percentage * 100));
+            //根据fielId获得当前要上传的文件的进度
+            var oldJinduValue = map[file.id];
+            if (percentage < oldJinduValue && oldJinduValue != 1) {
+//                    $li.find('p.state').text('上传中'+Math.round(oldJinduValue * 100) + '%');
+//                    $percent.css('width', oldJinduValue * 100 + '%');
+                $("#processbar").css('width', oldJinduValue * 100 + '%');
+                $("#processbar").text(( percentage * 100).toFixed(0) + '%')
+
+            } else {
+//                    $li.find('p.state').text('上传中'+Math.round(percentage * 100) + '%');
+//                    $percent.css('width', percentage * 100 + '%');
+                $("#processbar").css('width', percentage * 100 + '%');
+                $("#processbar").text(( percentage * 100).toFixed(0) + '%')
+            }
+        });
+        //上传成功后执行的方法
+        uploader.on('uploadSuccess', function (file) {
+            //上传成功去掉进度条
+            $('#' + file.id).find('.progress').fadeOut();
+            //隐藏删除按钮
+//                $(".btnRemoveFile").hide();
+            //隐藏上传按钮
+            $("#startOrStopBtn").hide();
+            $('#' + file.id).find('p.state').text('文件已上传成功，系统后台正在处理，请稍后...');
+            layer.closeAll();
+
+        });
+        //上传出错后执行的方法
+        uploader.on('uploadError', function (file) {
+            errorUpload = true;
+            $btn.text('开始');
+            uploader.stop(true);
+            $('#' + file.id).find('p.state').text('上传出错，请检查网络连接');
+        });
+        //文件上传成功失败都会走这个方法
+        uploader.on('uploadComplete', function (file) {
+
+        });
+        uploader.on('all', function (type) {
+            if (type === 'startUpload') {
+                state = 'uploading';
+            } else if (type === 'stopUpload') {
+                state = 'paused';
+            } else if (type === 'uploadFinished') {
+                state = 'done';
+            }
+            if (state === 'uploading') {
+                $btn.text('暂停');
+            } else {
+                $btn.text('开始');
+            }
+        });
+        //文件格式及大小
+        uploader.on("error", function (type) {
+            if (type == "Q_TYPE_DENIED") {
+                layer.msg("请上传csv、txt、xlsx或xls格式文件");
+            } else if (type == "Q_EXCEED_SIZE_LIMIT") {
+                layer.msg("文件大小不能超过50M");
+            } else if (type == "F_EXCEED_SIZE") {
+                layer.msg("文件大小不能超过50M");
+            } else {
+                layer.msg("上传出错！请检查后重新上传，或者尝试其他格式！");
+                console.log("上传出错！错误代码" + type);
+            }
+        });
+        //上传按钮的onclick时间
+        $btn.on('click', function () {
+            if (state === 'uploading') {
+                uploader.stop(true);
+            } else {
+                //当前上传文件的文件名
+                var currentFileName;
+                //当前上传文件的文件id
+                var currentFileId;
+                var currentFileSize;
+                //count=0 说明没开始传 默认从文件列表的第一个开始传
+                if (count == 0) {
+                    currentFileName = filesArr[0].name;
+                    currentFileId = filesArr[0].id;
+                    currentFileSize = filesArr[0].size;
+                } else {
+                    if (count <= filesArr.length - 1) {
+                        currentFileName = filesArr[count].name;
+                        currentFileId = filesArr[count].id;
+                        currentFileSize = filesArr[count].size;
+                    }
+                }
+
+                //先查询该文件是否上传过 如果上传过已经上传的进度是多少
+                $.ajax({
+                    type: "POST",
+                    url: img_url + '/chunks/progress.html',
+                    data: {
+                        fileName: currentFileName,//文件名
+                        fileSize: currentFileSize,
+                        fileMd5: fileMd5,
+                        flag: flag
+
+                    },
+                    cache: false,
+                    async: false,  // 同步
+                    dataType: "json",
+                    success: function (data) {
+                        //如果上传过 将进度存入map
+                        console.log("进度条 ---> " + data);
+                        if ((data) && data > 0) {
+                            map[currentFileId] = data / 100;
+                        }
+                        //执行上传
+                        uploader.upload(currentFileId);
+                    }
+                });
+            }
+        });
+
+
+        $("#downTemplate").click(function () {
+            layer.open({
+                type: 1,
+                title: false, //不显示标题
+                area: ['300px', '100px'],
+                content: $('#temType'),
+                cancel: function () {
+                }
+            });
+        })
+
+        $(".shanchu").click(function () {
+            delFile($("#file_name").text(),$("#fileMd5").val())
+        })
+        //删除队列中的文件
+        $("body").on("click", ".btnRemoveFile", function () {
+            layer.confirm("确定删除导入号码？", {title: "删除提示"}, function () {
+
+                deleteFile();
+            })
+        });
+
+        function deleteFile() {
+            var fileItem = $(".btnRemoveFile").parent();
+            uploader.removeFile($(fileItem).attr("id"), true);
+            $(fileItem).fadeOut(function () {
+                $(fileItem).remove();
+            });
+            //数组中的文件也要删除
+            for (var i = 0; i < filesArr.length; i++) {
+                if (filesArr[i].id == $(fileItem).attr("id")) {
+                    filesArr.splice(i, 1);//i是要删除的元素在数组中的下标，1代表从下标位置开始连续删除一个元素
+                }
+            }
+            count = 0;
+            $("#picker").show(500);
+            layer.closeAll();
+        }
+
+        function delFile(fileName,fileMd5) {
+            layer.confirm("列表中有未上传完成的文件，确定要放弃上传吗？", function (index) {
+                //do something
+                uploader.stop(true);
+                $.ajax({
+                    type: "POST",
+                    url: img_url + '/chunks/del_chunks.html',
+                    data: {
+                        fileName: fileName,//文件名
+                        fileMd5: fileMd5,
+                        flag: flag
+                    },
+                    cache: false,
+                    async: false,  // 同步
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.isDeleted == 1) {
+                            layer.msg("已删除文件", {time: 1500}, function () {
+                                layer.closeAll();
+                                deleteFile()
+                            });
+                        } else {
+                            layer.msg('删除失败');
+                        }
+                    }
+                });
+            });
+        }
+
+    });
+
+
+    //下载导入的文件
+    function downloadFile() {
+        var form = $("#downloadForm");
+        form.attr("action", img_url + "/file/downloadFile.html");
+        form.method = 'get';
+        $("#downloadForm").submit();
+    }
+
+    function importMobileChange() {
+        if (!checkFile("")) {
+            return;
+        }
+        var options = {
+            beforeSubmit: function () {
+                $(".importMobile").attr("disabled", true);
+                ityzl_SHOW_LOAD_LAYER("正在导入手机号，请勿刷新页面...");
+// 					layer.load(2, {shade: [0.8, '#393D49']});
+            },
+            success: function (result) {
+                layer.closeAll(); //疯狂模式，关闭所有层
+                $(".importMobile").attr("disabled", false);
+                // 重置表单否则下次导入同样文件名文件时onchange有效
+                document.getElementById("importMobileForm").reset();
+
+                if (!result.success) {// 导入失败或则不合法
+                    layer.alert(result.msg, {icon: 2});
+                    return;
+                } else {
+                    $("#mobile").val(result.mobileList);
+
+                    var errorMobileCount = result.errorMobileCount;
+                    var duplicateMobileCount = result.duplicateMobileCount;
+                    var errorMsg = "";
+                    if (errorMobileCount != null && errorMobileCount > 0) {
+                        errorMsg = '过滤掉不合法号码：' + errorMobileCount + '个，<br>';
+                    }
+                    if (duplicateMobileCount != null && duplicateMobileCount > 0) {
+                        errorMsg = '过滤掉重复号码：' + duplicateMobileCount + '个，<br>';
+                    }
+
+                    if (errorMsg.length > 0) {
+//							layer.alert(errorMsg  + "解析用时："+ result.time/1000 + "秒，"+'<br>'+"成功导入号码：" + result.mobileList.length + "个", {icon: 2});
+                        layer.alert(errorMsg + "成功导入号码：" + result.mobileList.length + "个", {icon: 2});
+                    } else {
+                        layer.msg("成功导入号码：" + result.mobileList.length + "个");
+                    }
+
+                }
+
+            },
+            async: true,
+            url: /*[[@{/bussiness/parsefile}]]*/"",
+            type: "post",
+            timeout: 600000
+        };
+        $("#importMobileForm").ajaxSubmit(options);
+
+
+    }
+
+
+    function smsSubmit() {
+
+        if (submit_flag) {
+            layer.msg("三秒内请不要重复提交")
+            return false;
+        }
+
+        // 短信提交前校验
+        if (!smsValidate()) {
+            return;
+        }
+        if (!clientAccountStatusCheck()) {
+            return;
+        }
+
+        timer = setInterval(function () {
+            if (count > 0 && count <= TIME_COUNT) {
+                count--;
+            } else {
+                submit_flag = false;
+                clearInterval(timer);
+                timer = null;
+            }
+        }, 1000);
+        var file_type;
+        if ($("#fileType").val() == 'xlsx' || $("#fileType").val() == 'xls') {
+            file_type = 1;
+        } else if ($("#fileType").val() == 'txt') {
+            file_type = 2;
+        } else if ($("#fileType").val() == 'csv') {
+            file_type = 3;
+        } else {
+            file_type = 0;
+        }
+        if ($("input[name='exportWay']:checked").val() == 0) {
+            if(SUBMIT_TOTAL < 1){
+                layer.msg("有效号码数为0",{icon:2});
+                return false;
+            }
+            var sms_params = {
+                smstype: $("#smstype").val(),
+                content: $("#content").val(),
+                clientId: flag,
+                chargeNum: $("#charge").text(),
+                content: $("#content").val(),
+                sign: $("#sign").val(),
+                importFilePath: $("#pathFile").val(),
+                fileType: file_type
+            };
+        } else {
+            var sms_params = {
+                smstype: $("#smstype").val(),
+                content: $("#content").val(),
+                clientId: flag,
+                mobile: $("#mobile").val(),
+                chargeNum: $("#charge").text(),
+                content: $("#content").val(),
+                sign: $("#sign").val(),
+                fileType: 0
+            };
+        }
+        ityzl_SHOW_LOAD_LAYER("发送短信中，请勿刷新页面...");
+        submit_flag = true;
+        $.ajax({
+            type: "post",
+            url: /*[[@{/bussiness/newOemSendSMS}]]*/"",
+            async: true,
+            data: JSON.stringify(sms_params),
+            contentType: "application/json",
+            success: function (result) {
+                submit_flag = false;
+                layer.closeAll();
+                $(".smsSubmit").removeClass("disabled");
+                if (result != null && !$.isEmptyObject(result) && result != "") {
+                    if (result.code == '300') {
+                        layer.confirm('短信提交成功，跳转到短信发送任务？', {icon: 1, title: '提示'}, function (index) {
+                            window.location.href = /*[[@{/bussiness/sendTask}]]*/"bussiness/sendTask";
+                            layer.close(index);
+                        });
+                    }else if (result.code == '0') {
+                        layer.alert('短信提交成功！', {icon: 1, title: '提示'});
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+
+                } else if (result == "") {
+                    // session超时
+                } else {
+                    layer.alert('系统错误，请联系客服', {icon: 2});
+                }
+
+            }
+        });
+
+    }
+
+
+    // 检查客户认证状态
+    function clientAccountStatusCheck() {
+        var checkResult = false;
+        $.ajax({
+            type: "get",
+            url: /*[[@{/account/isOauth}]]*/"account/isOauth",
+            async: false,
+            success: function (result) {
+                if (result != null) {
+                    if (result.oauthStatus == false) {
+                        layer.alert('未完成资质认证，跳转到认证页面？', {icon: 2, title: '提示'}, function (index) {
+                            window.location.href = /*[[@{/account/qualification}]]*/;
+                            layer.close(index);
+                        });
+                    } else {
+                        checkResult = true;
+                    }
+                } else {
+                    layer.alert('系统错误，请联系客服', {icon: 2});
+                }
+
+            }
+        });
+
+        return checkResult;
+    }
+
+    // 获得input输入框中光标位置
+    function getCursortPosition(ctrl) {
+        var CaretPos = 0;   // IE Support
+        if (document.selection) {
+            ctrl.focus();
+            var Sel = document.selection.createRange();
+            Sel.moveStart('character', -ctrl.value.length);
+            CaretPos = Sel.text.length;
+        }
+        // Firefox support
+        else if (ctrl.selectionStart || ctrl.selectionStart == '0')
+            CaretPos = ctrl.selectionStart;
+        return (CaretPos);
+    }
+
+    // 设置input输入框中光标的位置
+    function setCaretPosition(ctrl, pos) {
+        if (ctrl.setSelectionRange) {
+            ctrl.focus();
+            ctrl.setSelectionRange(pos, pos);
+        }
+        else if (ctrl.createTextRange) {
+            var range = ctrl.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', pos);
+            range.moveStart('character', pos);
+            range.select();
+        }
+    }
+
+
+    var maxsize = 5 * 1024 * 1024;//5M
+    var errMsg = "您选择的文件大于5M,请将excel拆分后重新导入";
+    var tipMsg = "您的浏览器暂不支持计算上传文件的大小，确保上传文件不要超过5M，建议使用高版本浏览器。";
+    var browserCfg = {};
+
+    function checkFile(mainFlag) {
+        var fileName = $("#importMobile").val();
+        var suffix = fileName.substring(fileName.lastIndexOf("."), fileName.length);
+        suffix = suffix.toLowerCase();
+        if (suffix != '.xlsx' && suffix != '.xls') {
+//            layer.alert("导入文件格式错误，目前支持.xls格式(97-2003)，请使用模板", {icon: 2});
+            layer.alert("导入文件格式错误，目前只支持Excel导入，请使用模板", {icon: 2});
+            return false;
+        }
+
+        var ua = window.navigator.userAgent;
+        if (ua.indexOf("MSIE") >= 1) {
+            browserCfg.ie = true;
+        } else if (ua.indexOf("Firefox") >= 1) {
+            browserCfg.firefox = true;
+        } else if (ua.indexOf("Chrome") >= 1) {
+            browserCfg.chrome = true;
+        }
+
+        var filesize = 0;
+        var excelFile = $("#importMobile");
+        if (browserCfg.firefox || browserCfg.chrome) {
+            filesize = excelFile[0].files[0].size;
+        } else if (browserCfg.ie) {
+            var obj_img = $("#preview");
+            obj_img.dynsrc = excelFile.value;
+            filesize = obj_img.fileSize;
+        }
+
+
+        if (filesize == -1) {
+            layer.alert(tipMsg, {icon: 2});
+            return false;
+        } else if (filesize > maxsize) {
+            layer.alert(errMsg, {icon: 2});
+
+            return false;
+        }
+
+        return true;
+    }
+
+    //从品牌拷贝js过来，  我的妈，这个地方js乱的 我受不了了。
+    $(function () {
+        var templateListUrl = /*[[@{/mms/template/list}]]*/'/mms/template/list';
+        var autoTemplateListUrl = /*[[@{/bussiness/autoTemplateList}]]*/'/bussiness/autoTemplateList';
+        var commonTemplateListUrl = /*[[@{/bussiness/autoTemplateCommonList}]]*/'/bussiness/autoTemplateCommonList';
+        var sendUrl = /*[[@{/bussiness/sendSMS}]]*/'/mms/bussiness/sendSMS';
+        var types = [], queryData = {}, autoQuery = {templateType: ""};
+        types[0] = 0;
+        types[1] = 4;
+        types[2] = 5;
+        types[3] = 9;
+        queryData.types = types;
+
+
+        var vm = avalon.define({
+            $id: "my-app",
+            msg_data: [],
+            pageNow: 0,
+            total: 0,
+            totalCount: 0,
+            jumpto: '',
+            rowCount: [15, 25, 35, 45],
+            first: function (now, end) {
+                if (now == 1) {
+                    return fasle;
+                } else {
+                    return true;
+                }
+            },
+            last: function (now, end) {
+                if (now == end) {
+                    return false;
+                } else {
+                    return true;
+                }
+            },
+            //跳转
+            jumpPage: function () {
+                var tagPage = parseInt(this.jumpto, 10);      //目标页面
+                if (tagPage < 0 || tagPage > parseInt(this.total, 10)) {
+                    layer.alert('无效的页数', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                queryData.currentPage = tagPage;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            },
+            //下一页
+            nextPage: function () {
+                var pageNow = this.pageNow,
+                    pageNext = parseInt(pageNow, 10) + 1;
+                if (this.total == pageNow) {
+                    layer.alert('已经是最后一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                queryData.currentPage = pageNext;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            },
+            //最后一页
+            lastPage: function () {
+                var last = this.total;
+                if (this.pageNow == last) {
+                    layer.alert('已经是最后一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                queryData.currentPage = last;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            },
+            //前一页
+            prePage: function () {
+                var pageNow = this.pageNow,
+                    pagpPre = parseInt(pageNow, 10) - 1;
+                if (pagpPre == 0) {
+                    layer.alert('已经是第一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+
+                queryData.currentPage = pagpPre;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            },
+            //第一页
+            firstPage: function () {
+                var first = 1;
+                if (this.pageNow == 1) {
+                    layer.alert('已经是第一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+
+                queryData.currentPage = first;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            },
+            isDark: function (strType) {
+                if (strType == 9) {
+                    return "btn-disable"
+                } else {
+                    return '';
+                }
+            },
+            ChangePageRowCount: function (index) {
+                var pageRowCount = this.rowCount[index];
+                queryData.pageRowCount = pageRowCount;
+                jumpPage({url: templateListUrl, type: 'GET', data: queryData}, this);
+            }
+        })
+        var vm2 = avalon.define({
+            $id: "my-app-auto",
+            msg_data: [],
+            msg_common_data: [],
+            pageNow: 0,
+            total: 0,
+            totalCount: 0,
+            pageNow_common: 0,
+            total_common: 0,
+            totalCount_common: 0,
+            toggle: false,
+            jumpto: '',
+            active: 'active',
+            smsTypeOptions: [{
+                value: "",
+                text: "全部类型"
+            }, {
+                value: "10",
+                text: "行业"
+            }, {
+                value: "11",
+                text: "会员营销"
+            }],
+            params: {
+                applicationScenarios: '',
+                smsType: '',
+                page: 1,
+                rows: 5
+            },
+            params_common: {
+                content: '',
+                smsType: '',
+                page: 1,
+                rows: 5
+            },
+            rowCount: [15, 25, 35, 45],
+            changeUI: function (flag) {
+                if (flag) {
+                    this.toggle = false;
+                } else {
+                    this.toggle = true;
+                }
+            },
+            search: function () {
+                this.params.page = 1;
+                aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+            },
+            searchcommon: function () {
+                this.params_common.page = 1;
+                commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+            },
+            first: function (now, end) {
+                if (now == 1) {
+                    return fasle;
+                } else {
+                    return true;
+                }
+            },
+            last: function (now, end) {
+                if (now == end) {
+                    return false;
+                } else {
+                    return true;
+                }
+            },
+            //跳转
+            jumpPage: function () {
+
+                if (!this.toggle) {
+                    var tagPage = parseInt(this.jumpto, 10);      //目标页面
+                    if (tagPage < 0 || tagPage > parseInt(this.total, 10)) {
+                        layer.alert('无效的页数', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params.page = tagPage;
+
+                    aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+                } else {
+                    var tagPage = parseInt(this.jumpto, 10);      //目标页面
+                    if (tagPage < 0 || tagPage > parseInt(this.total_common, 10)) {
+                        layer.alert('无效的页数', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params_common.page = tagPage;
+                    commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+                }
+            },
+            //下一页
+            nextPage: function () {
+                if (!this.toggle) {
+                    var pageNow = this.pageNow,
+                        pageNext = parseInt(pageNow, 10) + 1;
+                    if (this.total == pageNow) {
+                        layer.alert('已经是最后一页', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params.page = pageNext;
+                    aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+
+                } else {
+                    var pageNow_common = this.pageNow_common,
+                        pageNext = parseInt(pageNow_common, 10) + 1;
+                    if (this.total_common == pageNow_common) {
+                        layer.alert('已经是最后一页', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params_common.page = pageNext;
+                    commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+                }
+            },
+            //最后一页
+            lastPage: function () {
+                var last = this.total;
+                if (this.pageNow == last) {
+                    layer.alert('已经是最后一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+                if (!this.toggle) {
+                    this.params.page = last;
+                    aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+                } else {
+                    this.params_common.page = last;
+                    commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+                }
+            },
+            //前一页
+            prePage: function () {
+
+
+                if (!this.toggle) {
+                    var pageNow = this.pageNow,
+                        pagpPre = parseInt(pageNow, 10) - 1;
+                    if (pagpPre == 0) {
+                        layer.alert('已经是第一页', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params.page = pagpPre;
+                    aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+
+                } else {
+                    var pageNow = this.pageNow_common,
+                        pagpPre = parseInt(pageNow, 10) - 1;
+                    if (pagpPre == 0) {
+                        layer.alert('已经是第一页', {
+                            icon: 2
+                        });
+                        return false;
+                    }
+                    this.params_common.page = pagpPre;
+                    commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+                }
+            },
+            //第一页
+            firstPage: function () {
+                var first = 1;
+                if (this.pageNow == 1) {
+                    layer.alert('已经是第一页', {
+                        icon: 2
+                    });
+                    return false;
+                }
+
+                if (!this.toggle) {
+                    this.params.page = first;
+                    aotuTemplateHandle({url: autoTemplateListUrl, type: 'POST', data: this.params}, this);
+                } else {
+                    this.params_common.page = first;
+                    commonTemplateHandle({url: commonTemplateListUrl, type: 'POST', data: this.params_common}, this);
+                }
+            },
+            isDark: function (strType) {
+                if (strType == 9) {
+                    return "btn-disable"
+                } else {
+                    return '';
+                }
+            }
+        })
+        avalon.scan(document.body);
+        //首次加载
+        jumpPage({url: templateListUrl, type: 'GET', data: queryData}, vm);
+        commonTemplateHandle({
+            url: commonTemplateListUrl,
+            type: 'POST',
+            data: JSON.parse(JSON.stringify(vm2.params_common.$model))
+        }, vm2);
+        aotuTemplateHandle({
+            url: autoTemplateListUrl,
+            type: 'POST',
+            data: JSON.parse(JSON.stringify(vm2.params.$model))
+        }, vm2);
+
+
+        //发送模板短信
+        $(".msm-type").on("click", ".js-sendTemp", function () {
+            // 短信提交前校验
+            if (!smsValidate($(this).data("type"))) {
+                return;
+            }
+            // 短信签名和模板内容控制事件
+            if (!clientAccountStatusCheck()) {
+                return;
+            }
+            var arr = [], opt = {};
+            $('.ctx-temp').each(function (k, v) {
+                arr[k] = $(v).val();
+            })
+            opt.arr = arr;
+            opt.mobile = $("#mobile").val();
+            opt.smstype = $("#smstype").val();
+            opt.templateid = $("#templateId").val();
+
+            ityzl_SHOW_LOAD_LAYER("发送短信中，请勿刷新页面...");
+            $.ajax({
+                url: sendUrl,
+                type: 'POST',
+                data: opt,
+                success: function (result) {
+                    layer.closeAll();
+                    if (result != null && !$.isEmptyObject(result) && result != "") {
+                        if (result.code == '0') {
+                            layer.confirm('短信提交成功，跳转到短信记录？', {
+                                icon: 1,
+                                title: '提示'
+                            }, function (index) {
+                                window.location.href = /*[[@{/bussiness/record}]]*/"/console/bussiness/record";
+                                layer.close(index);
+                            });
+                        } else {
+                            layer.alert(result.msg, {
+                                icon: 2
+                            });
+                        }
+
+                    } else if (result == "") {
+                        // session超时
+                    } else {
+                        layer.alert('系统错误，请联系客服', {
+                            icon: 2
+                        });
+                    }
+                }
+            })
+        })
+    })
+
+
+    /*]]>*/
+</script>
+</html>

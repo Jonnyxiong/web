@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>短信平台</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+    <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc"/>
+    <meta name="Baiduspider" content="noarchive"/>
+    <link rel="shortcut icon" th:href="${oem.tab_logo_url}"/>
+    <link rel='stylesheet' href='css/tipso.min.css' th:href="@{/css/tipso.min.css}"/>
+    <link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css}"/>
+    <link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css}"/>
+    <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css}"/>
+    <link rel='stylesheet' th:href="@{/css/ie10.css}"/>
+    <link rel="stylesheet" href="/font/iconfont.css" th:href="@{/font/iconfont.css}">
+    <link rel='stylesheet' type='text/css' href='/css/main.css' th:href="@{/css/main.css}" />
+    <!--[if !IE]> -->
+    <script src="js/jquery-3.0.0.min.js" th:src="@{/js/jquery-3.0.0.min.js}"></script>
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script th:src="@{/js/jquery-1.11.3.min.js}"></script>
+    <link rel='stylesheet' th:href="@{/css/ie9.css}"/>
+    <![endif]-->
+
+    <script src="js/common.js" th:src="@{/js/common.js}"></script>
+    <script src="js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+    <script src="js/tipso.min.js" th:src="@{/js/tipso.min.js}"></script>
+    <script src="js/clipboard.min.js" th:src="@{/js/clipboard.min.js}"></script>
+    <script type="text/javascript" src="/js/auth.js" th:src="@{/js/auth.js}"></script>
+    <style type="text/css">
+
+        .tipso_bubble .tiny {
+            padding-right: 0;
+        }
+        .tipso_content {
+            padding: 0 !important;
+            line-height: 2 !important;
+            color: black;
+            text-align: center;
+            color: #FFFFFF;
+        }
+        body{
+            line-height: 20px;
+        }
+        .expire{
+        }
+        /*.right_border_line.account-balance.expire{*/
+            /*width: 14% !important;*/
+
+        /*}*/
+        img{
+            display: block;
+            margin-left: 34%;
+        }
+        .green-font{
+            font-size: 1em !important;
+        }
+        .sms_number{
+            display: block;
+            text-align: center !important;
+            font-size: 20px !important;
+        }
+        .ft_sm{
+            margin-left: 17%;
+        }
+        .ft_lf{
+            margin-left: 25%;
+        }
+
+        /*.idx-content .client-info{*/
+            /*width: 60% !important;*/
+        /*}*/
+        .idx-content .api-info{
+            width: 20%;
+        }
+        .idx-content .client-info{
+            min-width: auto;
+        }
+        #introduction{
+            margin-left: 0 !important;
+        }
+
+        .red-font a{
+            display: block;
+            width: 138px;
+            text-align: center;
+        }
+        /* 处理合并样式兼容 */
+        .idx-top{
+            margin-bottom: 0;
+        }
+        .content{
+            margin-top:0;
+        }
+        .idx-content .client-api{
+            padding-top:0;
+        }
+        .content h2{
+            line-height: 30px;
+        }
+        .product-pack tr th:first-child, .product-pack tr td:first-child{
+            text-align: center !important;
+        }
+    </style>
+</head>
+
+<body th:style="'color:' + ${oem.navigation_text_color} + ';'">
+
+<!--[if IE]>
+<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span>
+</div>
+<![endif]-->
+<div id="wrap" class="clearfix">
+    <!-- 左侧导航栏 bf-->
+    <div id="sidebar" th:style="'background-color:' + ${oem.navigation_backcolor} + ';'">
+        <div class="h100">
+            <div class="logo">
+                <a href="javascript:;" th:style="'background-color:' + ${oem.navigation_backcolor} + ';'">
+					<img src="img/logo2.png" th:src="${oem.logo_url}"/>
+				</a>
+            </div>
+            <div class="nav">
+                <ul>
+                    <li th:each="topMenu : ${topMenus}">
+                        <a href="javascript:void(0)" th:href="${topMenu.url}?${topMenu.url}:'javascript:void(0)'" th:if="${topMenu.show eq 1}" th:class="${topMenu.className}" >
+                            <span class="iconfont "></span>
+                            <i th:if="${topMenu.url}==null"></i>
+                            <span th:text="${topMenu.name}"></span>
+                        </a>
+                        <ul class="sub-nav" th:if="${not #lists.isEmpty(topMenu.subMenus)}" th:style="${topMenu.style}">
+                            <li th:each="subMenu : ${topMenu.subMenus}" th:if="${subMenu.show eq 1}">
+                                <a href="sms/page" th:href="${subMenu.url}" th:text="${subMenu.name}" th:class="${subMenu.className}">短信发送<span></span><i></i></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧导航栏 ef -->
+
+    <!-- 右边内容 bf -->
+    <div id="main">
+        <div class="main-con">
+            <div class="top idx-top clearfix">
+                <h1>首页</h1>
+                <div class="top-r ft-r" th:fragment="user">
+                    <span class="right_border_line">ID: <span th:text="${accountModel.clientId}">b00000</span></span>
+                    <a href="${ctx}/quit" th:href="@{/quit}"><span class="glyphicon glyphicon-off"></span> 退出</a>
+                </div>
+                <input type="hidden" th:value="${accountModel.clientId}" id="clientId">
+            </div>
+            <input id="oauthStatus" type="hidden" value="3" th:value="${accountModel.oauthStatus}" />
+            <input id="paytype" type="hidden" value="0" th:value="${accountModel.paytype}" />
+            <div class="con-out">
+                <div class="content idx-content">
+                    <div class="client-api clearfix" th:if="${session.IS_OEM}" style="font-size:12px;">
+                        <div class="client-info">
+                            <h2>短信账户余额</h2>
+                            <div class="client-detail clearfix" style="height: 130px" id="wid">
+                                <div class="right_border_line ft-l account-balance expire" onclick="toExpiredPage(0)"
+                                     th:if="${session.LOGIN_USER_INFO.smsfrom eq 6} or ${session.LOGIN_USER_INFO.smstype ne 5}">
+                                    <div class="fatBox">
+                                        <span class="green-font">
+                                            <img align="middle" src="img/SMS1.png" th:src="@{/img/SMS1.png}"/><br/>
+											<span th:text="${remainVerify}?${remainVerify} + '条':'0条'" class="sms_number">0</span>
+										</span><br/>
+                                        <span class="ft_sm ft_lf">剩余行业短信</span><br/>
+                                        <span class="red-font" th:if="${dueVerify}">
+											<a href="#">有<span id="" th:text="${dueVerify}?${dueVerify}:0">2584</span>条即将到期</a>
+										</span>
+                                    </div>
+                                </div>
+                                <div class="right_border_line ft-l account-balance expire" onclick="toExpiredPage(3)"
+                                     th:if="${session.LOGIN_USER_INFO.smsfrom eq 6} or ${session.LOGIN_USER_INFO.smstype eq 4}">
+                                    <div class="fatBox">
+                                        <span class="green-font">
+                                            <img align="middle" src="img/SMS1.png" th:src="@{/img/SMS1.png}"/><br/>
+											<span th:text="${remainCode}?${remainCode} + '条':'0条'" class="sms_number">0</span>
+										</span><br/>
+                                        <span class="ft_sm ft_lf">剩余验证码短信</span><br/>
+                                        <span class="red-font" th:if="${dueCode}">
+											<a href="#">有<span id="sms_notify" th:text="${dueCode}?${dueCode}:0">2584</span>条即将到期</a>
+										</span>
+                                    </div>
+                                </div>
+                                <div class="right_border_line ft-l account-balance expire" onclick="toExpiredPage(4)"
+                                     th:if="${session.LOGIN_USER_INFO.smsfrom eq 6} or ${session.LOGIN_USER_INFO.smstype eq 0}">
+                                    <div class="fatBox">
+                                        <span class="green-font">
+                                            <img align="middle" src="img/SMS1.png" th:src="@{/img/SMS1.png}"/><br/>
+											<span th:text="${remainNote}?${remainNote} + '条':'0条'" class="sms_number">0</span>
+										</span><br/>
+                                        <span class="ft_sm ft_lf">剩余通知短信</span><br/>
+                                        <span class="red-font" th:if="${dueNote}">
+											<a href="#">有<span id="" th:text="${dueNote}?${dueNote}:0">2584</span>条即将到期</a>
+										</span>
+                                    </div>
+                                </div>
+                                <div class="right_border_line ft-l account-balance expire" onclick="toExpiredPage(1)"
+                                     th:if="${session.LOGIN_USER_INFO.smsfrom eq 6} or ${session.LOGIN_USER_INFO.smstype eq 5}">
+                                    <div class="fatBox">
+                                        <span class="green-font">
+                                            <img align="middle" src="img/SMS2.png" th:src="@{/img/SMS2.png}"/><br/>
+											<span th:text="${remainMarket}?${remainMarket} + '条':'0条'" class="sms_number">0</span>
+										</span><br/>
+                                        <span class="ft_sm ft_lf">剩余营销短信</span><br/>
+                                        <span class="red-font" th:if="${dueMarket}">
+											<a href="#">有<span  id="sms_market" th:text="${dueMarket}?${dueMarket}:0">456</span>条即将到期</a>
+										</span>
+                                    </div>
+                                </div>
+                                <div class="right_border_line ft-l account-balance expire" onclick="toExpiredPage(2)" >
+                                    <div class="fatBox">
+                                        <span class="green-font">
+                                            <img align="middle" src="img/SMS3.png" th:src="@{/img/SMS3.png}"/><br/>
+                                            <span th:text="${remainIsms}?${remainIsms} + '元':'0元'" class="sms_number">0</span>
+
+                                        </span><br/>
+                                        <span class="ft_sm">
+											剩余国际短信<img align="right" src="img/question.png" data-tipso="国际短信按单条计费，不同地区价格不同，详细见国际短信价格表" id="introduction" th:src="@{/img/question.png}"/>
+										</span><br/>
+                                        <span class="red-font" th:if="${dueIsms}">
+											<a href="#">有<span id="sms_Isms" th:text="${dueIsms}?${dueIsms}:0">0</span>元将到期</a>
+										</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="api-info">
+                            <h2>API接口信息</h2>
+                            <dl>
+                                <div class="api1">
+                                    <dt>接口账号</dt>
+                                    <dd><input class="copy-text" id="api-amount" value="a000a9" th:value="${accountModel.clientId}"/></dd>
+                                    <a class="copyContent" href="javascript:;" data-clipboard-text="a000a9" th:attr="data-clipboard-text=${accountModel.clientId}">点击复制</a>
+                                </div>
+                                <div class="api2">
+                                    <dt>接口密码</dt>
+                                    <dd><input readonly="readonly" class="copy-text" id="api-password" value="******"/></dd>
+                                    <a class="copyContent" href="javascript:;" data-clipboard-text="12345678" th:attr="data-clipboard-text=${accountModel.password}">点击复制</a>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="client-api clearfix" th:if="!${session.IS_OEM}">
+                        <div class="client-info">
+                            <h2>短信余额 <span class="btn btn-green btn-small js-price" >余额提醒</span></h2>
+                            <div class="client-detail clearfix" style="">
+                                <div class="item yz-item js-desc" id="item-0" data-str="0">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain"></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余行业短信</p>
+                                </div>
+                                <div class="item yz-item js-desc" id="item-3" data-str="3">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain" ></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余验证码短信</p>
+                                </div>
+                                <div class="item yz-item js-desc" id="item-4" data-str="4">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain" ></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余通知短信</p>
+                                </div>
+                                <div class="item yx-item js-desc" id="item-1" data-str="1">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain"></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余营销短信</p>
+                                </div>
+                                <div class="item gj-item js-desc" id="item-2" data-str="2">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain"></span>元</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余国际短信</p>
+                                </div>
+                                <div class="item ussd-item js-desc" id="item-7" data-str="7">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain"></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余USSD</p>
+                                </div>
+                                <div class="item sx-item js-desc" id="item-8" data-str="8">
+                                    <div class="ctx">
+                                        <div class="img"></div>
+                                        <p class="text"><span class="remain"></span>条</p>
+                                    </div>
+                                    <p class="info" style="margin:0;">剩余闪信</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="api-info">
+                            <h2>API接口信息</h2>
+                            <dl>
+                                <div class="api1">
+                                    <dt>接口账号</dt>
+                                    <dd>
+                                        <input class="copy-text" id="api-amount" value="a000a9" th:value="${accountModel.clientId}" />
+                                    </dd>
+                                    <a class="copyContent" id="" href="javascript:;" data-clipboard-text="a000a9" th:attr="data-clipboard-text=${accountModel.clientId}">点击复制</a>
+                                </div>
+                                <div class="api2">
+                                    <dt>接口密码</dt>
+                                    <dd>
+                                        <input readonly="readonly" class="copy-text" id="api-password" value="******" />
+                                    </dd>
+                                    <a class="copyContent" id="" href="javascript:;" data-clipboard-text="h12345678" th:attr="data-clipboard-text=${accountModel.password}">点击复制</a>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="product-pack clearfix" th:if="${session.IS_OEM}">
+                        <h2>短信产品</h2>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th style="width: 16.3%;">产品代码</th>
+                                <th style="width: 16.3%;">产品名称</th>
+                                <th style="width: 16.3%;">产品类型</th>
+                                <th style="width: 16.3%;">运营商</th>
+                                <th style="width: 16.3%;">区域</th>
+                                <th style="width: 18.5%;">价格</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="product_row" th:each="productType : ${productTypes}" th:value="${productType.name}">
+                                <td style="width: 16.3%;" th:text="${productType.product_code}" >xxx</td>
+                                <td style="width: 16.3%;" th:text="${productType.product_name}" >xxx</td>
+                                <td style="width: 16.3%;" th:text="${productType.name}" >行业</td>
+                                <td style="width: 16.3%;" th:text="${productType.operator_code}" >xxx</td>
+                                <td style="width: 16.3%;" th:text="${productType.area_code}" >xxx</td>
+                                <td style="width: 18.5%;">动态价格，请联系我们</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 从品牌合并 -->
+                    <div class="product-pack clearfix" th:if="!${session.IS_OEM}">
+                        <h2>选择产品包</h2>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th style="width:15%"><span class="check"></span><span>产品包名称</span></th>
+                                <th>产品代码</th>
+                                <th>产品类型</th>
+                                <th>运营商</th>
+                                <th style="width:5%">区域</th>
+                                <th>有效期</th>
+                                <th>产品包数量</th>
+                                <th>产品包销售价</th>
+                                <th width="16%">创建时间</th>
+                                <th width="14%">数量</th>
+                                <th>金额（元）</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="product_row" th:each="productInfo:${jsmsPage.data}">
+                                <td style="width:15%"><span class="check"></span><span style="cursor: pointer;" onclick="showContentTip(this)" th:text="${productInfo.productName}">首充12000</span></td>
+                                <td style="cursor: pointer;width:8%" onclick="showContentTip(this)" th:text="${productInfo.productCode}">scyh0002</td>
+                                <td th:text="${productInfo.productTypeName }" style="width:8%">行业</td>
+                                <td th:text="${productInfo.operatorCodeName }" style="width:8%">全网</td>
+                                <td th:text="${productInfo.areaCodeName }" style="width:5%">全国</td>
+                                <td th:text="${productInfo.activePeriodName }">30天</td>
+                                <td th:text="${productInfo.quantityStr }">12000条</td>
+                                <td th:text="${productInfo.productType eq 2 ?productInfo.productPrice : productInfo.productPriceStr}">99999.00元</td>
+                                <td th:text="${#calendars.format(productInfo.createTime ,'yyyy-MM-dd HH:mm:ss')}">2016-11-14 12:38:25</td>
+                                <td>
+                                    <div class="count-change clearfix">
+                                        <span class="reduce"></span>
+                                        <input class="count" type="text" name="count" value="1" /><span class="add"></span>
+                                    </div>
+                                </td>
+                                <td class="totalPrice" th:text="${productInfo.totalPriceStr}">99999.00</td>
+                                <input class="quantity" type="hidden" value="12000.00" th:value="${productInfo.quantity}" />
+                                <input class="productPrice" type="hidden" value="99999.00" th:value="${productInfo.productPrice}" />
+                                <input class="productType" type="hidden" value="0" th:value="${productInfo.productType}" />
+                            </tr>
+                            <tr>
+                                <td colspan="8" class="clearfix">
+                                    <div class="pagination ft-r clearfix" style="width:500px;">
+                                        <div class="show-count ft-l">共有<span class="allCount" th:text="${jsmsPage.totalRecord}"> 4</span>条，每页显示
+                                            <span id="pageRowCountSpan" class="select"><span th:text="${jsmsPage.rows}">10</span>
+                                                    <ul class="show-num">
+                                                        <li>5</li>
+                                                        <li>10</li>
+                                                        <li>15</li>
+                                                        <li>20</li>
+                                                    </ul>
+                                                    </span> 条
+                                        </div>
+                                        <input id="currentPage" type="hidden" value="1" th:value="${jsmsPage.page }" />
+                                        <input id="totalPages" type="hidden" value="1" th:value="${jsmsPage.totalPage }" />
+                                        <input id="pageRowCount" type="hidden" name="pageRowCount" value="10" th:value="${jsmsPage.rows}" />
+                                        <ul class="pre-after ft-l">
+                                            <li class="first">
+                                                <a href="javascript:;" onclick="firstPage()"></a>
+                                            </li>
+                                            <li class="pre">
+                                                <a href="javascript:;" onclick="prePage()"></a>
+                                            </li>
+                                            <li class="now"><a href="javascript:;" th:text="${jsmsPage.page}+'/'+${jsmsPage.totalPage}">1/1</a></li>
+                                            <li class="after">
+                                                <a href="javascript:;" onclick="afterPage()"></a>
+                                            </li>
+                                            <li class="last">
+                                                <a href="javascript:;" onclick="lastPage()"></a>
+                                            </li>
+                                        </ul>
+                                        <input id="jump-to" type="text" name="jump-to" />
+                                        <a href="javascript:;" onclick="jumpToPage()">跳转</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="total">合计（元）：<b id="price_sum" class="red">0</b><a id="submitBtn" class="green-btn" href="javascript:;" onclick="submitOrder()">提交订单</a></div>
+                    </div>
+                </div>
+                <div class="btm btm-copyright " th:fragment="footer">
+                    <p>© <span th:text="${oem.copyright_text}">2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 右边内容 ef -->
+    <div class="pop-from" id="pop-grid" style="display: none;">
+        <div class="clearfix">
+            <div class="title">手机号码：</div>
+            <div class="desc"><input type="text" class="mobile" th:value="${accountModel.mobile}"></div>
+        </div>
+        <div class="clearfix mt20">
+            <div class="title">账户短信余额低于：</div>
+            <div class="desc"><input type="text" class="price">后提醒</div>
+        </div>
+        <p class="tip">当账户短信余额（验证码、通知和营销短信的总和）小于或等于设置条数时，系统将会通过短信提醒您，设置条数为0时，即默认为不提醒。设置条数范围0－100,000,000条</p>
+        <div class="clearfix mt20" style="padding:0 30px;">
+            <div class="col-6 tx-c">
+                <a href="javascript:;" class="btn btn-green js-confirm">确定</a>
+            </div>
+            <div class="col-6 tx-c">
+                <a href="javascript:;" class="btn btn-white js-cancle">取消</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script th:inline="javascript">
+    $(function(){
+        $(".a1").closest("li").hide();
+    })
+</script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    //msg消失时间
+    var msgTime = 1500;
+    var consoleUrl = /*[[@{/console}]]*/ "/console";
+    $(function () {
+        getHeadData();
+
+
+        $(".js-price").click(function(){
+            var clientId = $("#clientId").val();
+            $.ajax({
+                url : '/console/balancealarm/info?clientid=' + clientId,
+                success : function(res){
+                    if(res.code == "0" ){
+                        var phone, num;
+                        res.data === null ? phone = "" : phone = res.data.alarmPhone;
+                        res.data === null ? num = 0 : num = res.data.alarmNumber;
+                        $(".mobile").val(phone);
+                        $(".price").val(num);
+                    }
+
+                    layer.open({
+                        title:'账号短信余额提醒设置',
+                        type: 1,
+                        area: ['500px', '320px'],
+                        content: $('#pop-grid') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                    });
+                }
+            })
+
+        })
+
+        $("body").on("click",".js-cancle",function(){
+            layer.closeAll();
+        })
+        $("body").on("click",".js-confirm",function(){
+            var params = {};
+            params.clientid = $("#clientId").val();
+            params.alarmPhone = $(".mobile").val();
+            params.alarmNumber = $(".price").val();
+            if(params.alarmPhone === ""){
+                layer.msg("手机号码不能为空");
+                return false;
+            }
+            var phone = params.alarmPhone.split(',');
+            if(isRepeat(phone)){
+                layer.msg("手机号码重复");
+                return false;
+            }
+            for(var i=0;i<phone.length;i++){
+                if(!_Auth.isMobile(phone[i])){
+                    layer.msg("手机号码格式不正确");
+                    return false;
+                }
+            }
+            if(params.alarmNumber === ""){
+                layer.msg("告警额度不能为空");
+                return false;
+            }
+            if(!_Auth.isNum(params.alarmNumber)){
+                layer.msg("告警额度只能是大于等于0的整数");
+                return false;
+            }
+            if(params.alarmNumber > 100000000){
+                layer.msg("告警额度不能大于1亿");
+                return false;
+            }
+            //if(/^[]$/params.alarmPhone)
+            var p = JSON.stringify(params);
+
+            $.ajax({
+                url : "/console/balancealarm/save",
+                type : 'POST',
+                contentType:"application/json",
+                data : p,
+                success : function(res){
+                    layer.msg(res.msg);
+                    setTimeout(function(){
+                        layer.closeAll();
+                    }, 1000)
+                }
+            })
+        })
+
+        var total = $("#wid").children().length;
+        if(total==4){
+            var totalWidth = 54+'%';
+            var per = (100/total - 5.8) + '%';
+
+        }
+        if(total==5){
+            var totalWidth = 63.2 +'%';
+            var per = (100/total - 4.8) + '%';
+        }
+        $('.right_border_line').css('width',per);
+        $(".idx-content .client-info").css('width',totalWidth);
+
+
+        var notHttpFlag = [[${session.LOGIN_USER_INFO.smsfrom ne 6}]];
+        if(notHttpFlag){
+
+            var marketSmsFlag = [[${session.LOGIN_USER_INFO.smstype eq 5}]];
+            if(marketSmsFlag ){
+                $('tr[value="行业"]').remove();
+                $('tr[value="验证码"]').remove();
+                $('tr[value="通知"]').remove();
+            }else{
+                $('tr[value="营销"]').remove();
+            }
+        }
+
+        $(".sms_number").each(function (i, e) {
+            var num = $(e).text();
+            if (num.length >= 5 && num.length < 7) {
+                minusFontSizePx(e, 9);
+            } else if (num.length >= 7) {
+                minusFontSizePx(e, 16);
+            }
+        });
+
+
+//        $('.expire').on('click', function () {
+//            toExpiredPage();
+//        });
+
+        var httpFlag = [[${session.LOGIN_USER_INFO.smsfrom eq 6}]]
+        if(httpFlag){
+            checkIsExistOauthPicInfo();
+        }
+
+
+        $('#introduction').tipso({
+            background: '#2EA967',
+            useTitle: false,
+            delay: 100,
+            hideDelay: 100,
+            size: 'tiny',
+            width: '16%',
+            position: 'bottom'
+        });
+        copyAcountInfoListener();
+
+
+    });
+    function getHeadData(){
+        $.ajax({
+            url : '/console/groupOrderListByProductTypeAll',
+            type : 'GET',
+            dataType : "json",
+            success : function(res){
+                var o = res;
+                for(var k in o){
+                    if (k == 'remainHangYe'){
+                        $("#item-0").show();
+                        $("#item-0").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainYanZhengMa'){
+                        $("#item-3").show();
+                        $("#item-3").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainTongZhi'){
+                        $("#item-4").show();
+                        $("#item-4").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainYingXiao'){
+                        $("#item-1").show();
+                        $("#item-1").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainGuoJi'){
+                        $("#item-2").show();
+                        $("#item-2").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainUSSD'){
+                        $("#item-7").show();
+                        $("#item-7").find(".remain").text(o[k]);
+                    }
+
+                    if (k == 'remainShanXin'){
+                        $("#item-8").show();
+                        $("#item-8").find(".remain").text(o[k]);
+                    }
+
+//                    var arr = k.split("-");
+//                    $("#item-" + arr[0]).show();
+//                    $("#item-" + arr[0]).find(".remain").text(o[k]);
+                }
+            }
+
+        })
+    }
+    function minusFontSizePx(e, minusSize) {
+        //获取短信数量的字体大小
+        var thisEle = $(e).css("font-size");
+        //parseFloat的第二个参数表示转化的进制，10就表示转为10进制
+        var textFontSize = parseFloat(thisEle, 10);
+        var unit = thisEle.slice(-2); //获取单位
+        textFontSize -= minusSize;
+        //设置短信数量的字体大小
+        $(e).css("font-size", textFontSize + unit);
+
+    }
+
+    function copyAcountInfoListener() {
+        var clipboard = new Clipboard('.copyContent');
+        clipboard.on('success', function (e) {
+            layer.msg("复制成功", {time: 1000})
+        });
+        clipboard.on('error', function (e) {
+            layer.msg("复制失败，复制功能只支持 Chrome 42+、Firefox 41+、IE 9+、Opera 29+", {time: 3000})
+        });
+    }
+
+
+    //检查有没有提交认证信息
+    function checkIsExistOauthPicInfo() {
+        var clientid = $('#clientId').val();
+        $.ajax({
+            type: "POST",
+            url: /*[[@{/account/isExistOauthPicInfo}]]*/"account/isExistOauthPicInfo",
+            data: "client_id=" + clientid,
+            dataType:'json',
+            async: false,
+            success: function (data) {
+                if (data == null) {
+                    layer.alert('系统错误，请联系客服', {icon: 2});
+                } else {
+                    if (data.isExist == false) {
+                        layer.confirm('未完成资质认证，跳转到认证页面？', {icon: 2, title: '提示'}, function (index) {
+                            window.location.href = /*[[@{/account/qualification}]]*/;
+                            layer.close(index);
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    function toExpiredPage(productType) {
+        location.href = [[@{/console/expire}]]+"?productType="+productType;
+    }
+
+    /**
+    * 从品牌客户端合并js
+    * */
+    $("#jump-to").keyup(function() {
+        var val = $(this).val();
+        if (!/^[1-9]\d*$/.test(val)) {
+            $(this).val("");
+        }
+    });
+    //提交订单
+    function submitOrder() {
+
+        var oauthStatus = $("#oauthStatus").val();
+        if (oauthStatus != 3) {
+            layer.alert("请先认证资质！", function(index) {
+                //跳转到认证页面
+                location.href = /*[[@{/account/qualification}]]*/ "/account/cerInfo";
+            });
+
+            return false;
+        }
+
+        var paytype = $("#paytype").val();
+        if (paytype == 1) {
+
+            layer.alert("后付费的用户不能购买产品包！");
+            return false;
+        }
+
+        var spanList = $(".checked");
+        if (spanList.length == 0) {
+            layer.alert('请选择产品！');
+            return;
+        }
+
+        var prompt1 = "确定选择商品[ ";
+        var prompt2 = "";
+        var prompt3 = " ]下单？";
+
+        var productInfoPoList = new Array();
+        for (var i = 0; i < spanList.length; i++) {
+            var row = $(spanList[i]).parents(".product_row");
+            if (row.length == 0) {
+                continue;
+            }
+            var test = row.children()[9].innerHTML;
+
+            // 				var test = '<div class="count-change clearfix">'+
+            // 					'<span class="reduce"></span><input class="count" type="text" name="count" value="2"><span class="add"></span>'+
+            // 					+'</div>';
+            var product = new Object();
+            var pnum = parseInt($(test).children()[1].value);
+            var pName = $(row.children()[0]).children()[1].innerHTML;
+            var pCode = row.children()[1].innerHTML;
+
+            if (pnum == 0) {
+                layer.alert('产品：' + pName + '的数量为0，请重新选择！');
+                return;
+            }
+
+            //产品名称
+            product.productName = pName;
+            //产品代码
+            product.productCode = pCode;
+            //产品数量
+            product.productNum = pnum;
+
+            prompt2 = prompt2 + product.productName + "*" + product.productNum + " ，"
+
+
+            productInfoPoList.push(product);
+        }
+
+        var content = new Object();
+        content.clientid = $('#clientId').val();
+        content.productInfoPoList = productInfoPoList;
+
+        prompt2 = prompt2.substring(0, prompt2.toString().length - 1);
+
+        var prompt = prompt1 + prompt2 + prompt3;
+
+        layer.confirm("确定下单？", function(index) {
+            //do something
+            confirmSubmitOrder(content);
+            layer.close(index);
+        });
+
+    }
+    function showContentTip(obj) {
+        //          var contentId = "#" + obj.id;
+        var contentDetail = obj.innerHTML;
+        layer.tips(contentDetail, obj, {
+            tips: [2, '#2ea967'],
+            tmie: 500
+        });
+    }
+
+    function confirmSubmitOrder(content) {
+
+        var btn = $("#submitBtn");
+//    $(btn).removeAttr('onclick');
+
+        var jsonText = JSON.stringify(content);
+        // 			alert(jsonText);
+
+        $.ajax({
+            type: "POST",
+            url: /*[[@{/finance/order/createOrder}]]*/ "/order/createOrder",
+            data: 'placeOrderParamStr=' + jsonText,
+            async: false,
+            success: function(data) {
+
+                if (data == "") {
+                    //session超时
+                    return;
+                }
+
+//            $(btn).attr('onclick', 'submitOrder()');
+
+                if (data.isSuccess == null) {
+                    layer.msg('服务器错误，请联系管理员', {
+                        icon: 2,
+                        time: msgTime
+                    });
+                    return;
+                }
+
+                if (data.isSuccess == true) {
+
+                    layer.alert("下单成功，请等待审核通过！", function(index) {
+
+                        //do something
+                        var url = /*[[@{/finance/order/list}]]*/ "/order/list"; //我的订单
+                        location.href = url;
+
+                        layer.close(index);
+                    });
+
+                } else {
+                    layer.alert(data.message, function(index) {
+                        //do something
+                        window.location.reload();
+                        layer.close(index);
+                    });
+                }
+            }
+
+        });
+
+    }
+    function prePage() {
+        var currentPage = $('#currentPage').val();
+        if (currentPage==1||currentPage==0) {
+            layer.alert("已经首页！");
+            return;
+        }
+
+        if(!isSessionValid()){return}
+        var goalPage = $('#currentPage').val() - 1;
+        var pageSize = $('#pageRowCount').val();
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+        location.href = url;
+    }
+
+    function afterPage() {
+        var currentPage = $('#currentPage').val();
+        var totalPages = $('#totalPages').val();
+        if (currentPage>=totalPages) {
+            layer.alert("已经是最后一页！");
+            return;
+        }
+        if(!isSessionValid()){return}
+        var goalPage = parseInt($('#currentPage').val()) + 1;
+        var pageSize = $('#pageRowCount').val();
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+
+        location.href = url;
+
+    }
+
+    function jumpToPage() {
+        var jumpPage = $('#jump-to').val();
+        var pageSize = $('#pageRowCount').val();
+        if (jumpPage == "") {
+            layer.alert("请输入跳转的页数");
+            return;
+        }
+        var goalPage = parseInt(jumpPage);
+        if (goalPage < 1) {
+            goalPage = 1;
+        }
+
+        var lastPage = parseInt($('#totalPages').val());
+        if (goalPage > lastPage) {
+            goalPage = lastPage;
+        }
+
+        if (goalPage == 0) {
+            $("#jump-to").val("");
+            return;
+        }
+
+        if(!isSessionValid()){return}
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+        location.href = url;
+    }
+
+    function firstPage() {
+        /* var totalPages = $('#totalPages').val();
+         if(parseInt(totalPages) == 0){
+         layer.alert("已经是首页！");
+         return;
+         } */
+
+        var goalPage = 1;
+        var pageSize = $('#pageRowCount').val();
+        if(!isSessionValid()){return}
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+        location.href = url;
+    }
+    var reloadFun = function(){
+        var goalPage = 1;
+        if(!isSessionValid()){return}
+        var pageSize = $('#pageRowCount').val();
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+        location.href = url;
+    }
+    function lastPage() {
+        var goalPage = $('#totalPages').val();
+        var pageSize = $('#pageRowCount').val();
+
+        /* if(parseInt(goalPage) == 0){
+         layer.alert("已经是最后一页！");
+         return;
+         }	 */
+
+        if(!isSessionValid()){return}
+        var url = consoleUrl + "?goalPage=" + goalPage + "&pageSize=" + pageSize;
+        location.href = url;
+    }
+
+    // 啦啦啦 我是从品牌代理商过来的， 我要吐了。
+    function isRepeat(arr){
+
+        var hash = {};
+
+        for(var i in arr) {
+
+            if(hash[arr[i]])
+
+                return true;
+
+            hash[arr[i]] = true;
+
+        }
+
+
+        return false;
+
+    }
+    $(function(){
+        $(".js-desc").click(function(){
+            var product_type = $(this).data("str");
+            var url = "/console/remainList?productType=" + product_type;
+            window.location.href=url;
+        })
+    })
+    /*]]>*/
+</script>
+</html>

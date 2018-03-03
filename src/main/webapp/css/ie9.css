@@ -1,0 +1,11 @@
+#main{
+	top:20px;
+}
+.green-font img{
+	float:left;
+}
+
+.red-font a{
+  color: red;
+  font-size: 12px; 
+}

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>短信平台</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+    <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc"/>
+    <meta name="Baiduspider" content="noarchive"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <link rel="shortcut icon" th:href="${oem.tab_logo_url}"/>
+    <link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css?v=1.0}"/>
+    <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css?v=1.0}"/>
+    <link rel='stylesheet' href='/css/main.css' th:href="@{/css/main.css?v=1.0}"/>
+    <link rel="stylesheet" href="/font/iconfont.css" th:href="@{/font/iconfont.css?v=1.0}">
+    <link rel='stylesheet' th:href="@{/css/ie10.css}"/>
+    <link rel='stylesheet' href='js/jedate/skin/jedate.css' th:href="@{/js/jedate/skin/jedate.css}"/>
+    <!--[if !IE]> -->
+    <script src="js/jquery-3.0.0.min.js" th:src="@{/js/jquery-3.0.0.min.js}"></script>
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script th:src="@{/js/jquery-1.11.3.min.js}"></script>
+    <link rel='stylesheet' th:href="@{/css/ie9.css}"/>
+    <![endif]-->
+    <script src="/js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+    <script src="/js/common.js" th:src="@{/js/common.js}"></script>
+    <script src="/js/jedate/jedate.js" th:src="@{/js/jedate/jedate.js}"></script>
+
+    <script th:inline="javascript">
+
+    </script>
+    <style>
+        .tr1{
+            width:15% !important;
+        }
+        .tr2{width:10% !important;}
+        .tr3{width:10% !important;}
+        .tr4{width:20% !important;}
+        .tr5{width:20% !important;}
+        .tr6{width:25% !important;}
+        table{
+            font-size:14px;
+            font-family: 'Microsoft YaHei';
+        }
+    </style>
+</head>
+
+<body th:style="'color:' + ${oem.navigation_text_color} + ';'">
+<!--[if IE]>
+<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span>
+</div>
+<![endif]-->
+
+<div id="wrap" class="clearfix">
+
+    <!-- 左侧导航栏 bf-->
+    <div id="sidebar" th:replace="console :: #sidebar"></div>
+
+    <!-- 左侧导航栏 ef -->
+    <!-- 右側內容 -->
+    <div id="main">
+        <div class="main-con">
+            <div class="top idx-top clearfix">
+                <h1>我的消费</h1>
+                <div class="top-r ft-r" th:include="console :: user">
+                    <span class="right_border_line" th:text="${accountModel.clientId}"></span>
+                    <a href="${ctx}/quit"><span class="glyphicon glyphicon-off"></span> 退出</a>
+                </div>
+            </div>
+            <div class="con-out">
+
+                <div class="content idx-content">
+                    <div class="order-option clearfix">
+                        <div class="option-l ft-l clearfix" style="width:100%;">
+                            <div class="option-r ft-l" style="margin-top: 0px;">
+                                <label>操作类型</label>
+                                <select name="" id="recharge">
+                                    <option value="">全部</option>
+                                    <option value="1" th:if="${property  eq 'isOEM'}">充值</option>
+                                    <option value="2" th:if="${property eq 'isOEM'}">回退</option>
+                                    <option value="3">条数返还</option>
+                                </select>
+                            </div>
+                            <div class="option-r ft-l" style="margin-top: 0px;margin-left:10px;">
+                                <label>产品类型</label>
+                                <select name="" id="product">
+                                    <option value="">全部</option>
+                                    <option value="3">验证码</option>
+                                    <option value="4">通知</option>
+                                    <option value="1">会员营销</option>
+                                    <option value="0">行业</option>
+                                    <option value="2">国际短信</option>
+                                </select>
+                            </div>
+                            <div class="ft-r">
+                                <label>时间</label>
+                                <input type="text" id="date_start" name="start_time" placeholder="开始时间"
+                                       readonly="readonly"/>
+                                <label>至</label>
+                                <input type="text" id="date_end" name="end_time" placeholder="结束时间"
+                                       readonly="readonly"/>
+                                <input class="green-btn" id="submitBtn" type="button" value="搜索"
+                                       style="margin-top: 0px;"/>
+                            </div>
+
+                        </div>
+
+                        <input id="fileName" type="hidden" name="fileName"/>
+                    </div>
+                    <div class="product-pack msm-notes clearfix">
+                        <table class="grid-table">
+                            <thead>
+                            <tr>
+                                <th class="tr1" style="text-align: center;">序号</th>
+                                <th class="tr2">操作类型</th>
+                                <th class="tr3">短信数量</th>
+                                <th class="tr4">产品类型</th>
+                                <th class="tr5">时间</th>
+                                <th class="tr6">备注</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+                            </tbody>
+                            <tr class="js-total" style="display: none;">
+                                <td class="tr1">合计</td>
+                                <td class="tr2"></td>
+                                <td class="tr3 total-ctx"></td>
+                                <td class="tr4"></td>
+                                <td class="tr5"></td>
+                                <td class="tr6"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="clearfix" id="page-td">
+                                    <div class="pagination ft-r clearfix">
+                                        <!--<div class="show-count ft-l">共有<span id="totalRecord" class="allCount"></span>条，每页显示-->
+                                            <!--<span id="pageRowCountSpan" class="select"><span id="pageSize">10</span>-->
+                                                <!--<ul class="show-num">-->
+                                                    <!--<li>5</li>-->
+                                                    <!--<li>10</li>-->
+                                                    <!--<li>15</li>-->
+                                                    <!--<li>20</li>-->
+                                                <!--</ul>-->
+                                            <!--</span> 条-->
+                                        <!--</div>-->
+
+                                        <ul class="pre-after ft-l" style="width: 38%;">
+                                            <li class="first"><a href="javascript:;"></a></li>
+                                            <li class="pre"><a href="javascript:;"></a></li>
+                                            <li class="now" style="width: 30%;"><a href="javascript:;" id="page">0/0</a></li>
+                                            <li class="after"><a href="javascript:;"></a></li>
+                                            <li class="last"><a href="javascript:;"></a></li>
+                                        </ul>
+                                        <input id="jump2PageNum" type="text" name="jump-to"/>
+                                        <a href="javascript:;" id="jump2Page" style="float:left">跳转</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+
+                        </table>
+                        <input type="hidden" id="pageNo" />
+                        <input type="hidden" id="totalPage" />
+                    </div>
+                </div>
+                <div class="btm btm-copyright " th:include="console :: footer">
+                    <p>© 2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 右侧内容 end -->
+</div>
+</body>
+
+<script src="/js/validate/smsp.validate.js" th:src="@{/js/validate/smsp.validate.js}"></script>
+<script src="/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="/js/template-web.js" th:src="@{/js/template-web.js}"></script>
+<script id="table-list" type="text/html">
+{{each list}}
+    <tr>
+        <td class="tr1" style="text-align: center;">{{$value.rownum}}</td>
+        <td class="tr2">
+            {{$value.orderTypeName}}
+        </td>
+        <td class="tr3">
+            {{$value.number}}
+        </td>
+        <td class="tr4">
+            {{$value.productTypeName}}
+        </td>
+        <td class="tr5">
+            {{$value.time}}
+        </td>
+        <td class="tr6">
+            {{$value.remark}}条
+        </td>
+    </tr>
+{{/each}}
+</script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    jeDate({
+        dateCell: '#date_start',
+        festival: true,
+        maxDate: new Date().Format("yyyy-MM-dd"),        //最小日期
+        format: 'YYYY-MM-DD hh:mm:ss'
+    });
+
+    jeDate({
+        dateCell: '#date_end',
+        festival: true,
+        maxDate: new Date().Format("yyyy-MM-dd"),        //最小日期
+        format: 'YYYY-MM-DD hh:mm:ss'
+    });
+
+    $(function(){
+        function showTotal(){
+            var opera = $("#recharge").val();
+            if(opera == ""){
+                $(".js-total").hide();
+            } else {
+                $(".js-total").show();
+            }
+        }
+
+        function search(){
+            var params = {};
+            params.orderType = $("#recharge").val();
+            params.productType = $("#product").val();
+            params.beginCreateTime = $("#date_start").val();
+            params.endCreateTime = $("#date_end").val();
+            params.pageNo = $("#pageNo").val() || 1;
+            params.pageSize = $("#pageSize").val() || 10;
+
+//            var page={};
+//            page.page=$("#pageNo").val() || 1;
+//            page.rows = $("#pageSize").val() || 10;
+//            params.page=page;
+            var start = new Date(params.beginCreateTime).getTime();
+            var end = new Date(params.endCreateTime).getTime();
+            if(start > end){
+                layer.msg("开始时间不能大于结束时间",{icon:2});
+                return false;
+            }
+            $.ajax({
+                url:'/finance/recharge/oemClientOrder/list',
+                type :'POST',
+                dataType :"json",
+                data : params,
+                success : function(res){
+                    var data = {
+                        list : res.data
+                    }
+                    var html = template('table-list', data);
+                    document.getElementById('tbody').innerHTML = html;
+
+                    var page = res.page + '/' + res.totalPage;
+//                    $("#pageSize").text(res.pageSize);
+//                    $("#totalRecord").text(res.totalRecord);
+                    $("#page").text(page);
+                    $("#totalPage").val(res.totalPage);
+                    $("#pageNo").val(res.page);
+
+                    showTotal();
+                }
+
+            })
+            var params_ = {};
+            params_.orderType = $("#recharge").val();
+            params_.productType = $("#product").val();
+            params_.beginCreateTime = $("#date_start").val();
+            params_.endCreateTime = $("#date_end").val();
+            $.ajax({
+                url:'/finance/recharge/oemClientOrder/list/total',
+                type : 'POST',
+                data : params_,
+                success : function(res){
+                    if(res.code != 0){
+                        layer.msg(res.msg, {icon:2});
+                        return;
+                    }
+                    var orderNumberTotal = res.data.orderNumberTotal;
+                    var orderPriceTotal = res.data.orderPriceTotal;
+
+                    $(".total-ctx").text(orderNumberTotal + "条/" + orderPriceTotal + "元");
+                }
+            })
+        }
+        search();
+        $('.first').click(function(){
+            $("#pageNo").val('1');
+            search();
+        })
+        $(".last").click(function(){
+            var totalPage = $("#totalPage").val();
+            $("#pageNo").val(totalPage);
+            search();
+        })
+        $(".after").click(function(){
+            var totalPage = $("#totalPage").val();
+            var pageNo = $("#pageNo").val();
+            if(pageNo == totalPage && totalPage != 0){
+                layer.msg("已经最后一页",{icon:2})
+                return;
+            }
+            $("#pageNo").val(++pageNo);
+            search()
+
+        })
+        $(".pre").click(function () {
+            var pageNo = $("#pageNo").val();
+            if(pageNo == 1){
+                layer.msg("已经第一页",{icon:2})
+                return;
+            }
+            $("#pageNo").val(--pageNo);
+            search()
+        })
+
+        $("#jump2Page").click(function (){
+            var page = $("#jump2PageNum").val();
+            var totalPage = $("#totalPage").val();
+
+            if(!/^[0-9]*$/.test(page)){
+                layer.msg("输入页数格式不对",{icon:2})
+                return;
+            }
+            if(page*1 > totalPage*1){
+                layer.msg("输入页数过大",{icon:2})
+                return;
+            }
+            if(page < 1){
+                layer.msg("输入页数不能小于1",{icon:2});
+                return;
+            }
+            $("#pageNo").val(page);
+            search();
+        })
+        //搜索
+        $("#submitBtn").click(function(){
+            search();
+        })
+    })
+    /*]]>*/
+</script>
+
+</html>

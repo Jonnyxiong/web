@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+      	<meta charset="UTF-8"/>
+    	<title>短信平台</title>
+	   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	   <meta name="baidu-site-verification" content="zNwez22Bcq"/>
+	   <meta name="google-site-verification" content="6hC_46bMT6_bGxmL_Ec5V_7xnPSnQBhQBl8y3MtfoFc" />
+	   <meta name="Baiduspider" content="noarchive"/>
+	   <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>  
+    <link rel="shortcut icon" th:href="${oem.tab_logo_url}" />
+		<link rel='stylesheet' href='css/reset.css' th:href="@{/css/reset.css}"/>
+		<link rel='stylesheet' href='css/base.css' th:href="@{/css/base.css}"/>
+        <link rel='stylesheet' href='css/tipso.min.css' th:href="@{/css/tipso.min.css}"/>
+        <link rel='stylesheet' href='css/oem.css' th:href="@{/css/oem.css}"/>
+		<link rel='stylesheet' th:href="@{/css/ie10.css}" />
+		
+		<!--[if !IE]> -->
+		<script src="js/jquery-3.0.0.min.js"  th:src="@{/js/jquery-3.0.0.min.js}"></script>
+		<!-- <![endif]-->
+		<!--[if IE]>
+		<script th:src="@{/js/jquery-1.11.3.min.js}" ></script>
+		<link rel='stylesheet' th:href="@{/css/ie9.css}" />
+		<![endif]-->
+		<script src="js/common.js" th:src="@{/js/common.js}"></script>
+        <script src="js/layer/layer.js" th:src="@{/js/layer/layer.js}"></script>
+
+        <style>
+            .info-list a:hover{
+                text-decoration: underline;
+                text-decoration-color: #2fb26a;
+            }
+        </style>
+    </head>
+    
+    <body  th:style="'color:' + ${oem.navigation_text_color} + ';'">
+	<!--[if IE]>
+ 	<div style="background:yellow;width:100%;text-align:center;"><span style="color:red">您的浏览器版本过低，支持浏览器：Chrome 41+、Firefox 45+、IE 10+</span></div>
+ 	<![endif]--> 
+ 	
+        <div id="wrap" class="clearfix" >
+        
+      <!-- 左侧导航栏 bf-->
+      <div id="sidebar" th:replace="console :: #sidebar">
+      </div>
+      
+      <!-- 左侧导航栏 ef -->
+  
+      <!-- 右边内容 bf -->
+      <div id="main">
+        <div class="main-con">
+          <div class="top idx-top clearfix">
+            <div class="top-r ft-r"  th:include="console :: user">  
+              <span class="right_border_line">ID: b00000</span>
+              <a href="${ctx}/quit"><span class="glyphicon glyphicon-off"></span> 退出</a>
+            </div>
+          </div> 
+          <div class="con-out">
+           	<div class="crumbs not"><i style="color:#838f97;">帮助中心  </i></div>
+
+			<div class="content help-content clearfix">
+				<div class="help-l">
+					<ul> 
+						<li><a class="cur" href="${ctx}/help/apiIntroduce" th:href="@{/help/apiIntroduce}">相关文档</a></li>
+					</ul>
+				</div>
+				<div class="help-r">
+					<div class="info">
+						<div class="info-list">
+							<dl>
+								<dt>
+
+
+                                    <span class="mark">短信接入文档，详见附件
+                                        <img src="img/question.png" data-tipso='若出现:“Word无法打开, 因为文件格式与文件扩展名不匹配”类似提示，请尝试将文件后缀名doc改成docx或者将后缀docx改成doc再尝试打开' id="introduction" th:src="@{/img/question.png}"/>
+                                        &nbsp;&nbsp;&nbsp;
+                                    </span>
+                                    <a href="${ctx}/help/smsHttpsIntroduceDoc" th:href="@{/help/smsIntroduceDoc}"><i class="doc">短信https接口文档V1.0.docx</i></a>&nbsp;
+                                    <a href="${ctx}/help/smsCmppIntroduceDoc" th:href="@{/help/smsCmppIntroduceDoc}"><i class="doc">短信cmpp接口文档V2.0.doc</i></a>&nbsp;
+                                    <a href="${ctx}/help/smsSgipIntroduceDoc" th:href="@{/help/smsSgipIntroduceDoc}"><i class="doc">短信sgip接口文档V1.2.doc</i></a>&nbsp;
+                                    <a href="${ctx}/help/smsSmgpIntroduceDoc" th:href="@{/help/smsSmgpIntroduceDoc}"><i class="doc">短信smgp接口文档V3.0.doc</i></a>&nbsp;
+                                    <a href="${ctx}/help/smsSmppIntroduceDoc" th:href="@{/help/smsSmppIntroduceDoc}"><i class="doc">短信smpp接口文档V3.4.pdf</i></a>&nbsp;
+                                </dt>
+								<dt><span class="mark">FAQ文档，详见附件&nbsp;&nbsp;&nbsp;</span><a href="${ctx}/help/downloadFAQDoc" th:href="@{/help/downloadFAQDoc}"><i class="doc">FAQ文档V1.0.docx</i></a></dt>
+							</dl>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+            <div class="btm btm-copyright "  th:include="console :: footer" style="bottom: -50px;">
+              <p>© 2016 szchuzhong.com 版权所有 粤ICP备B2-20160275号</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 右边内容 ef -->
+    </div>
+    <script src="js/tipso.min.js" th:src="@{/js/tipso.min.js}"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        /*]]>*/
+
+        $(function () {
+            $('#introduction').tipso({
+                background: '#2EA967',
+                useTitle: false,
+                delay: 100,
+                hideDelay: 100,
+                size: 'tiny',
+                width: '16%',
+                position: 'bottom'
+            });
+        });
+    </script>
+    </body>
+    
+</html>
+ 

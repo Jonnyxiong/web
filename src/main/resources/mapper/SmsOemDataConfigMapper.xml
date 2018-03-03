@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="smsOemData">
+	
+ 	<!-- 获取管理员资料 -->
+	<select id="getByDomainName" resultType="map">
+		SELECT
+			o.agent_id,
+			o.domain_name,
+			o.copyright_text,
+			o.tab_logo_url,
+			o.logo_url,
+			o.company_logo_url,
+			o.api_document_url,
+			o.FAQ_document_url,
+			o.navigation_backcolor,
+			o.navigation_text_color,
+			o.hy_sms_discount,
+			o.yx_sms_discount,
+			o.gj_sms_discount
+		FROM
+			t_sms_oem_data_config o
+		WHERE o.domain_name = #{domain_name}
+	</select>
+	
+	
+</mapper>

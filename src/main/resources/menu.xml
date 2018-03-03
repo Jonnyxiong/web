@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menus>
+	<menu>
+		<name>首页</name>
+		<className> icon-shouyeshouye</className>
+		<url>/console</url>
+	</menu>
+	<menu>
+		<name>内容测试</name>
+		<className> icon-duanxin</className>
+		<url>/content/test</url>
+	</menu>
+	<menu>
+		<name>传统短信</name>
+		<className> icon-duanxin</className>
+		<subMenus>
+			<menu>
+				<name>短信发送</name>
+				<url>/bussiness/send</url>
+			</menu>
+			<menu>
+				<name>短信模版</name>
+				<url>/bussiness/template</url>
+			</menu>
+			<!--<menu>
+				<name>国际短信报价</name>
+				<url>/bussiness/price</url>
+			</menu>-->
+			<menu>
+				<name>数据统计</name>
+				<url>/bussiness/statistics</url>
+			</menu>
+			<menu>
+				<name>短信发送记录</name>
+				<url>/bussiness/record</url>
+			</menu>
+		</subMenus>
+	</menu>
+	<menu>
+		<name>智能模板</name>
+		<className> icon-iconfontmoban</className>
+		<url>/autoTemplate/list</url>
+	</menu>
+	<menu>
+		<name>彩印</name>
+		<className> icon-caixin2</className>
+		<subMenus>
+			<menu>
+				<name>彩印发送</name>
+				<url>/mms/send</url>
+			</menu>
+			<menu>
+				<name>彩印模板管理</name>
+				<url>/mms/template</url>
+			</menu>
+			<menu>
+				<name>彩印发送记录</name>
+				<url>/mms/record</url>
+			</menu>
+			<menu>
+				<name>彩印数据统计</name>
+				<url>/mms/ussdday</url>
+			</menu>
+		</subMenus>
+	</menu>
+	<menu>
+		<name>财务管理</name>
+		<className> icon-qianbi01</className>
+		<subMenus>
+			<menu>
+				<name>我的消费</name>
+				<url>/finance/recharge/myConsumption</url>
+			</menu>
+			<menu>
+				<name>我的订单</name>
+				<url>/finance/order/list</url>
+			</menu>
+		</subMenus>
+	</menu>
+	<menu>
+		<name>账户管理</name>
+		<className> icon-shenfenzheng</className>
+		<subMenus>
+			<menu>
+				<name>账户资料</name>
+				<url>/account/info</url>
+			</menu>
+			<menu>
+				<name>账户安全</name>
+				<url>/account/security</url>
+			</menu>
+		</subMenus>
+	</menu>
+
+	<menu>
+		<name>帮助中心</name>
+		<className> icon-bangzhuzhongxin</className>
+		<subMenus>
+			<menu>
+				<name>短信接入</name>
+				<url>/help/smsAccessIntroduce</url>
+			</menu>
+			<menu>
+				<name>FAQ</name>
+				<url>/help/FAQ</url>
+			</menu>
+		</subMenus>
+	</menu>
+</menus>
